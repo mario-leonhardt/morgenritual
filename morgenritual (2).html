@@ -1,0 +1,1403 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Morgenritual</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f9f8f5; color: #1a1a18; min-height: 100vh; padding: 2rem 1rem; }
+  .container { max-width: 680px; margin: 0 auto; }
+  .top-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; flex-wrap: wrap; gap: 10px; }
+  .greeting { font-size: 26px; font-weight: 500; color: #1a1a18; margin-bottom: 4px; }
+  .subtitle { font-size: 15px; color: #6b6b65; }
+  .top-btns { display: flex; gap: 8px; flex-shrink: 0; margin-top: 4px; flex-wrap: wrap; }
+  .icon-btn { padding: 7px 13px; border-radius: 8px; border: 0.5px solid #b4b2a9; background: transparent; color: #6b6b65; font-size: 13px; cursor: pointer; font-family: inherit; white-space: nowrap; }
+  .icon-btn:hover { background: #f1efe8; }
+  .question-card { background: #f1efe8; border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 1rem; }
+  .q-label { font-size: 12px; color: #9b9b93; margin-bottom: 4px; }
+  .q-text { font-size: 16px; font-weight: 500; color: #1a1a18; }
+  .q-input { width: 100%; margin-top: 10px; font-size: 15px; padding: 10px 12px; border-radius: 8px; border: 0.5px solid #ccccc4; background: #fff; color: #1a1a18; resize: none; font-family: inherit; }
+  .q-input:focus { outline: none; border-color: #888780; }
+  .mentor-section { margin: 2rem 0 1rem; }
+  .mentor-label { font-size: 13px; color: #6b6b65; margin-bottom: 10px; }
+  .mentor-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .mentor-card { background: #fff; border: 0.5px solid #d3d1c7; border-radius: 12px; padding: 1rem; cursor: pointer; transition: border-color 0.15s; text-align: center; }
+  .mentor-card:hover { border-color: #888780; }
+  .mentor-card.selected { border: 2px solid #185fa5; background: #e6f1fb; }
+  .mentor-name { font-size: 14px; font-weight: 500; color: #1a1a18; margin-bottom: 4px; }
+  .mentor-tag { font-size: 11px; color: #6b6b65; }
+  .mentor-card.selected .mentor-name, .mentor-card.selected .mentor-tag { color: #185fa5; }
+  .step-area { margin-top: 1.5rem; }
+  .progress-bar { height: 4px; background: #f1efe8; border-radius: 2px; margin-bottom: 2rem; }
+  .progress-fill { height: 4px; background: #378add; border-radius: 2px; transition: width 0.4s; }
+  .step-card { background: #fff; border: 0.5px solid #d3d1c7; border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 10px; display: flex; gap: 14px; align-items: flex-start; opacity: 0.4; transition: opacity 0.3s; }
+  .step-card.active { opacity: 1; border-color: #888780; }
+  .step-card.done { opacity: 0.6; }
+  .step-num { width: 28px; height: 28px; border-radius: 50%; background: #f1efe8; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; color: #6b6b65; flex-shrink: 0; margin-top: 2px; }
+  .step-card.active .step-num { background: #e6f1fb; color: #185fa5; }
+  .step-card.done .step-num { background: #eaf3de; color: #3b6d11; }
+  .step-title { font-size: 14px; font-weight: 500; color: #1a1a18; margin-bottom: 3px; }
+  .step-desc { font-size: 13px; color: #6b6b65; line-height: 1.5; margin-top: 4px; }
+  .step-source { font-size: 11px; color: #9b9b93; margin-top: 4px; }
+  .step-input { width: 100%; font-size: 13px; padding: 8px 10px; border-radius: 6px; border: 0.5px solid #ccccc4; background: #fff; color: #1a1a18; font-family: inherit; margin-top: 4px; }
+  .step-input:focus { outline: none; border-color: #888780; }
+  .step-textarea { width: 100%; font-size: 13px; padding: 8px 10px; border-radius: 6px; border: 0.5px solid #ccccc4; background: #fff; color: #1a1a18; font-family: inherit; resize: none; margin-top: 4px; }
+  .step-textarea:focus { outline: none; border-color: #888780; }
+  .drift-hint { background: #faeeda; border-radius: 8px; padding: 10px 12px; margin-top: 10px; font-size: 12px; color: #633806; line-height: 1.6; }
+  /* Timer */
+  .timer-block { margin-top: 14px; background: #f9f8f5; border-radius: 10px; padding: 12px 14px; display: flex; align-items: center; gap: 12px; }
+  .timer-display { font-size: 22px; font-weight: 500; color: #185fa5; min-width: 56px; font-variant-numeric: tabular-nums; }
+  .timer-display.done { color: #3b6d11; }
+  .timer-btns { display: flex; gap: 6px; }
+  .tbtn { padding: 5px 12px; border-radius: 6px; border: 0.5px solid #b4b2a9; background: transparent; color: #1a1a18; font-size: 12px; cursor: pointer; font-family: inherit; }
+  .tbtn:hover { background: #f1efe8; }
+  .tbtn.start { background: #e6f1fb; color: #185fa5; border-color: #378add; }
+  .tbtn.start:hover { background: #b5d4f4; }
+  .timer-progress { flex: 1; height: 4px; background: #e0dfd7; border-radius: 2px; overflow: hidden; }
+  .timer-progress-fill { height: 100%; background: #378add; border-radius: 2px; transition: width 0.5s linear; }
+  .btn-row { display: flex; gap: 10px; margin-top: 1.5rem; }
+  .btn { padding: 10px 20px; border-radius: 8px; border: 0.5px solid #b4b2a9; background: transparent; color: #1a1a18; font-size: 14px; cursor: pointer; font-family: inherit; }
+  .btn:hover { background: #f1efe8; }
+  .btn-primary { background: #e6f1fb; color: #185fa5; border-color: #378add; }
+  .btn-primary:hover { background: #b5d4f4; }
+  .btn-danger { color: #791f1f; border-color: #f09595; }
+  .complete-msg { text-align: center; padding: 2rem; color: #6b6b65; font-size: 15px; line-height: 1.7; }
+  .complete-msg .big { font-size: 28px; margin-bottom: 8px; }
+  .section-divider { border: none; border-top: 0.5px solid #d3d1c7; margin: 2rem 0; }
+  /* Views */
+  .view { display: none; }
+  .view.active { display: block; }
+  .ritual-view { display: block; }
+  .ritual-view.hidden { display: none; }
+  .view-header { font-size: 20px; font-weight: 500; margin-bottom: 4px; }
+  .view-sub { font-size: 14px; color: #6b6b65; margin-bottom: 1.5rem; }
+  /* Verlauf */
+  .day-card { background: #fff; border: 0.5px solid #d3d1c7; border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 10px; }
+  .day-card:hover { border-color: #888780; }
+  .day-top { display: flex; justify-content: space-between; align-items: center; }
+  .day-date { font-size: 14px; font-weight: 500; color: #1a1a18; }
+  .day-steps { font-size: 12px; color: #9b9b93; margin-top: 4px; }
+  .day-detail { margin-top: 12px; border-top: 0.5px solid #e8e7e0; padding-top: 12px; display: block; }
+  .day-detail.open { display: block; }
+  .detail-q { font-size: 12px; color: #9b9b93; margin-bottom: 2px; margin-top: 10px; }
+  .detail-a { font-size: 13px; color: #1a1a18; }
+  .empty-state { text-align: center; padding: 3rem 1rem; color: #9b9b93; font-size: 14px; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 11px; background: #eaf3de; color: #3b6d11; }
+  .badge.partial { background: #fef3e2; color: #a06000; }
+  .badge.aborted { background: #faeeda; color: #854f0b; }
+  /* Profil */
+  .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.5rem; }
+  .metric { background: #f1efe8; border-radius: 8px; padding: 1rem; }
+  .metric-label { font-size: 12px; color: #6b6b65; margin-bottom: 4px; }
+  .metric-val { font-size: 22px; font-weight: 500; }
+  .section-label { font-size: 12px; font-weight: 500; color: #6b6b65; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; margin-top: 1.5rem; }
+  .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 1rem; }
+  .pill { font-size: 12px; padding: 4px 12px; border-radius: 20px; background: #e6f1fb; color: #0c447c; }
+  .pill-gray { font-size: 12px; padding: 5px 12px; border-radius: 8px; background: #f1efe8; color: #6b6b65; }
+  .portrait-box { background: #f1efe8; border-radius: 12px; padding: 1.25rem 1.5rem; font-size: 14px; line-height: 1.75; margin-bottom: 1rem; }
+  .abort-box { background: #f1efe8; border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
+  .abort-row { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; }
+  /* Klarheit */
+  .quote-block { border-left: 3px solid #b4b2a9; padding: 1rem 1.25rem; margin-bottom: 2rem; font-style: italic; font-size: 15px; color: #444441; line-height: 1.75; }
+  .quote-source { font-size: 12px; color: #9b9b93; margin-top: 8px; font-style: normal; }
+  .link-btn { display: inline-block; padding: 10px 20px; border-radius: 8px; border: 0.5px solid #b4b2a9; font-size: 13px; color: #1a1a18; text-decoration: none; background: #fff; }
+  .link-btn:hover { background: #f1efe8; }
+  #importInput { display: none; }
+  .writing-wrap { position: relative; display: flex; flex-direction: column; }
+  .writing-textarea { resize: none; border-radius: 8px 8px 0 0 !important; border-bottom: none !important; }
+  .resize-handle { 
+    width: 100%; height: 24px; 
+    display: flex; align-items: center; justify-content: center;
+    cursor: ns-resize; 
+    background: #f1efe8;
+    border: 0.5px solid #ccccc4;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    user-select: none;
+    flex-shrink: 0;
+  }
+  .resize-handle::after {
+    content: '';
+    display: block;
+    width: 36px;
+    height: 4px;
+    border-radius: 2px;
+    background: #b4b2a9;
+  }
+  .resize-handle:hover { background: #e8e6de; }
+  .resize-handle:hover::after { background: #6b6b65; }
+
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Top bar -->
+  <div class="top-row">
+    <div>
+      <div class="greeting" id="greetingText" onclick="showRitual()" style="cursor:pointer;">Guten Morgen</div>
+      <div class="subtitle" id="subtitleText"></div>
+    </div>
+    <div class="top-btns">
+      <button class="icon-btn" onclick="showView('verlauf')">◎ Verlauf</button>
+      <button class="icon-btn" onclick="showView('profil')">○ Profil</button>
+      <button class="icon-btn" onclick="showView('klarheit')">☽ Klarheit</button>
+      <button class="icon-btn" onclick="showView('einstellungen')">💾 Speichern & Backup</button>
+      <input type="file" id="importInput" accept=".json" onchange="importJSON(event)">
+      <div id="folderIndicator" style="display:none;font-size:12px;color:#3b6d11;background:#eaf3de;padding:4px 10px;border-radius:6px;align-items:center;gap:4px;">✓ <span id="folderName"></span></div>
+    </div>
+  </div>
+
+  <!-- Ritual View -->
+  <div class="ritual-view" id="ritualView">
+
+    <div id="importBanner" style="display:none;background:#faeeda;border-radius:10px;padding:12px 16px;margin-bottom:1.5rem;font-size:13px;color:#633806;line-height:1.65;">
+      <strong>Hast du bereits Einträge?</strong> Importiere deine <em>morgenritual_daten.json</em> unter <strong>Speichern & Backup → Backup importieren</strong> um deine früheren Antworten wiederherzustellen.
+      <button onclick="document.getElementById('importBanner').style.display='none'" style="float:right;background:none;border:none;font-size:16px;cursor:pointer;color:#633806;">×</button>
+    </div>
+    <div class="question-card">
+      <div class="q-label">Frage 1</div>
+      <div class="q-text">Wie geht es dir heute?</div>
+      <div class="writing-wrap">
+        <textarea class="q-input writing-textarea" id="q1" rows="2" placeholder="Schreib kurz, wie du dich fühlst..."></textarea>
+        <div class="resize-handle" onmousedown="startResize(event,'q1')"></div>
+      </div>
+    </div>
+    <div class="question-card">
+      <div class="q-label">Frage 2</div>
+      <div class="q-text">Was ist dein Nordstern?</div>
+      <textarea class="q-input" id="q2" rows="2" placeholder="Dein tiefster Antrieb, deine Vision..."></textarea>
+    </div>
+    <div class="question-card">
+      <div class="q-label">Frage 3</div>
+      <div class="q-text">Was möchtest du heute kreieren, das deinem Nordstern entspricht?</div>
+      <textarea class="q-input" id="q3" rows="2" placeholder="Eine konkrete Absicht für heute..."></textarea>
+    </div>
+
+    <div class="question-card">
+      <div class="q-label">Frage 4</div>
+      <div class="q-text">Wo zeigst du dich heute?</div>
+      <textarea class="q-input" id="q4" rows="2" placeholder="Wo trittst du heute auf, wirst sichtbar, machst einen Schritt..."></textarea>
+    </div>
+    <div class="question-card">
+      <div class="q-label">Frage 5</div>
+      <div class="q-text">Warum ist dein Nordstern heute wichtig für dich?</div>
+      <div class="writing-wrap">
+        <textarea class="q-input writing-textarea" id="q5" rows="2" placeholder="Die Verbindung zum Warum — heute, nicht generell..."></textarea>
+        <div class="resize-handle" onmousedown="startResize(event,'q5')"></div>
+      </div>
+    </div>
+
+    <div class="question-card" style="background:#e6f1fb;border:0.5px solid #378add;">
+      <div class="q-label" style="color:#378add;">Frage 6 — Führung</div>
+      <div class="q-text" style="color:#0c447c;font-size:18px;letter-spacing:-0.01em;">Bist du heute eine Führungskraft?</div>
+      <div style="font-size:12px;color:#185fa5;margin-top:4px;margin-bottom:8px;">Führst du dich selbst — oder lässt du dich treiben?</div>
+      <div class="writing-wrap">
+        <textarea class="q-input writing-textarea" id="q6" rows="2" placeholder="Ja. Weil... / Noch nicht. Heute ändere ich..." style="background:#fff;border-color:#378add;color:#1a1a18;font-size:14px;line-height:1.7;border-radius:8px 8px 0 0;border-bottom:none;"></textarea>
+        <div class="resize-handle" onmousedown="startResize(event,'q6')"></div>
+      </div>
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- Kreativer Schreibbereich -->
+    <div style="margin-bottom:2rem;">
+      <div style="font-size:13px;font-weight:500;color:#1a1a18;margin-bottom:4px;">Kreatives Schreiben</div>
+      <div style="font-size:12px;color:#9b9b93;margin-bottom:12px;">Fortlaufende Dokumente — du schreibst weiter wo du aufgehört hast.</div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;">
+        <button onclick="switchWritingTab('stephen', this)" id="tab-stephen" style="font-size:13px;padding:6px 16px;border-radius:20px;border:0.5px solid #185fa5;background:#e6f1fb;color:#185fa5;cursor:pointer;font-family:inherit;font-weight:500;">Sir Stephen & Me</button>
+        <button onclick="switchWritingTab('comedy', this)" id="tab-comedy" style="font-size:13px;padding:6px 16px;border-radius:20px;border:0.5px solid #b4b2a9;background:transparent;color:#6b6b65;cursor:pointer;font-family:inherit;">Comedy</button>
+        <button onclick="switchWritingTab('creator', this)" id="tab-creator" style="font-size:13px;padding:6px 16px;border-radius:20px;border:0.5px solid #b4b2a9;background:transparent;color:#6b6b65;cursor:pointer;font-family:inherit;">Creator Business</button>
+      </div>
+      <div id="writing-stephen">
+        <div style="font-size:11px;color:#9b9b93;margin-bottom:6px;" id="stephen-meta"></div>
+        <div class="writing-wrap">
+        <textarea id="write-stephen" class="q-input writing-textarea" rows="4" placeholder="Sir Stephen & Me — schreib das erste was kommt. Eine Szene, ein Satz, eine Idee..." style="font-size:14px;line-height:1.7;border-radius:8px 8px 0 0;border-bottom:none;"></textarea>
+        <div class="resize-handle" id="handle-stephen" onmousedown="startResize(event,'write-stephen')"></div>
+      </div>
+      </div>
+      <div id="writing-comedy" style="display:none;">
+        <div style="font-size:11px;color:#9b9b93;margin-bottom:6px;" id="comedy-meta"></div>
+        <div class="writing-wrap">
+        <textarea id="write-comedy" class="q-input writing-textarea" rows="4" placeholder="Comedy — ein Gedanke, ein Witz, eine Beobachtung aus dem Alltag..." style="font-size:14px;line-height:1.7;border-radius:8px 8px 0 0;border-bottom:none;"></textarea>
+        <div class="resize-handle" id="handle-comedy" onmousedown="startResize(event,'write-comedy')"></div>
+      </div>
+      </div>
+      <div id="writing-creator" style="display:none;">
+        <div style="font-size:11px;color:#9b9b93;margin-bottom:6px;" id="creator-meta"></div>
+        <div class="writing-wrap">
+        <textarea id="write-creator" class="q-input writing-textarea" rows="4" placeholder="Creator Business — Ideen, Outreach, Strategien, nächste Schritte..." style="font-size:14px;line-height:1.7;border-radius:8px 8px 0 0;border-bottom:none;"></textarea>
+        <div class="resize-handle" id="handle-creator" onmousedown="startResize(event,'write-creator')"></div>
+      </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;flex-wrap:wrap;gap:8px;">
+        <span id="writingSaveMsg" style="font-size:12px;color:#9b9b93;"></span>
+        <div style="display:flex;gap:8px;">
+          <button onclick="exportWriting('stephen')" style="font-size:12px;padding:5px 12px;border-radius:6px;border:0.5px solid #b4b2a9;background:transparent;color:#6b6b65;cursor:pointer;font-family:inherit;">Sir Stephen exportieren ↗</button>
+          <button onclick="exportWriting('comedy')" style="font-size:12px;padding:5px 12px;border-radius:6px;border:0.5px solid #b4b2a9;background:transparent;color:#6b6b65;cursor:pointer;font-family:inherit;">Comedy exportieren ↗</button>
+          <button onclick="exportWriting('creator')" style="font-size:12px;padding:5px 12px;border-radius:6px;border:0.5px solid #b4b2a9;background:transparent;color:#6b6b65;cursor:pointer;font-family:inherit;">Creator Business exportieren ↗</button>
+        </div>
+      </div>
+    </div>
+
+    <hr class="section-divider">
+
+    <div style="text-align:right;margin-bottom:1.5rem;min-height:18px;">
+      <span id="autoSaveMsg" style="font-size:12px;color:#9b9b93;margin-right:12px;"></span>
+      <button onclick="exportJSON()" style="font-size:12px;padding:6px 14px;border-radius:8px;border:0.5px solid #b4b2a9;background:transparent;color:#6b6b65;cursor:pointer;font-family:inherit;">💾 Backup exportieren</button>
+    </div>
+
+    <div class="mentor-section">
+      <div class="mentor-label">Wähle deinen ersten Schritt — wessen Energie führt dich heute?</div>
+      <div class="mentor-grid">
+        <div class="mentor-card" onclick="selectMentor('rohn', this)">
+          <div class="mentor-name">Jim Rohn</div>
+          <div class="mentor-tag">Lesen & Weisheit</div>
+        </div>
+        <div class="mentor-card" onclick="selectMentor('robbins', this)">
+          <div class="mentor-name">Tony Robbins</div>
+          <div class="mentor-tag">Energie & Priming</div>
+        </div>
+        <div class="mentor-card" onclick="selectMentor('graziosi', this)">
+          <div class="mentor-name">Dean Graziosi</div>
+          <div class="mentor-tag">Mindset & Intention</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-area" id="stepArea" style="display:none;">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      <div id="stepsContainer"></div>
+      <div class="btn-row">
+        <button class="btn" onclick="prevStep()">Zurück</button>
+        <button class="btn btn-primary" id="nextBtn" onclick="nextStep()">Schritt abgeschlossen</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Verlauf View -->
+  <div class="view" id="verlaufView">
+    <div class="view-header">Dein Verlauf</div>
+    <div class="view-sub" id="verlaufSub"></div>
+    <div id="verlaufList"></div>
+    <button class="btn" style="margin-top:1rem;" onclick="showRitual()">← Zurück</button>
+  </div>
+
+  <!-- Profil View -->
+  <div class="view" id="profilView">
+    <div class="view-header">Dein Profil</div>
+    <div class="view-sub">Dein wachsendes Selbstportrait</div>
+    <div id="profilContent"></div>
+
+    <div style="margin-top:2.5rem;background:#e6f1fb;border-radius:16px;padding:2rem;">
+      <div style="font-size:11px;font-weight:500;letter-spacing:0.12em;color:#378add;text-transform:uppercase;margin-bottom:12px;">Tiefe Analyse mit Claude</div>
+      <div style="font-size:18px;font-weight:500;color:#0c447c;margin-bottom:8px;line-height:1.4;">Dein persönliches Portrait</div>
+      <div style="font-size:13px;color:#185fa5;line-height:1.7;margin-bottom:1.5rem;">Je mehr Tage du sammelst, desto klarer das Bild. Claude liest alle deine Einträge und zeigt dir Muster, Stärken und blinde Flecken — ehrlich und ohne Filter.</div>
+      <button onclick="copyAnalyse()" style="background:#185fa5;color:#f9f8f5;border:none;border-radius:8px;padding:11px 20px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;width:100%;">Einträge für Claude kopieren ↗</button>
+      <div id="copyMsg" style="font-size:12px;color:#0c447c;margin-top:8px;display:none;text-align:center;">Kopiert — öffne Claude und füge es ein.</div>
+    </div>
+
+    <br><button class="btn" style="margin-top:1rem;" onclick="showRitual()">← Zurück</button>
+  </div>
+
+  <!-- Klarheit View -->
+  <div class="view" id="klarheitView">
+    <div class="view-header">Klarheit</div>
+    <br>
+    <p style="font-size:14px;color:#6b6b65;line-height:1.9;margin-bottom:2rem;">
+      Klarheit ist kein Ziel, das du eines Tages erreichst.<br>
+      Sie ist eine Haltung — die stille Entscheidung, jeden Morgen innezuhalten,<br>
+      bevor die Welt dich mit ihren Fragen überflutet.<br><br>
+      Wer sich selbst kennt, braucht keinen Lärm.<br>
+      Wer seinen Nordstern kennt, verliert sich nicht.<br>
+      Klarheit ist nicht das Fehlen von Chaos —<br>
+      sie ist die Ruhe, die du mitten darin findest.
+    </p>
+    <div class="quote-block">
+      „Dein Geist ist wie Wasser. Wenn er aufgewühlt ist, ist es schwer zu sehen. Aber wenn er still ist, wird alles klar."
+      <div class="quote-source">— Taoistische Weisheit</div>
+    </div>
+    <div class="section-label">Mentale Stärke</div>
+    <p style="font-size:13px;color:#6b6b65;margin-bottom:12px;line-height:1.6;">Klarheit beginnt im Körper. Was du isst, wie du atmest, wie du schläfst — das ist das Fundament jedes klaren Gedankens.</p>
+    <a href="https://www.ringana.com/mental-strength/" target="_blank" class="link-btn">RINGANA Mental Strength ↗</a>
+    <br><br>
+    <div class="quote-block">
+      „Die Wurzel aller Gesundheit liegt in der Erde. Die Wurzel aller Klarheit liegt in der Stille. Die Wurzel aller Kraft liegt in der Wahrheit."
+      <div class="quote-source">— Zen-Weisheit</div>
+    </div>
+    <div class="section-label">Die Wurzel der Vitalität</div>
+    <p style="font-size:13px;color:#6b6b65;margin-bottom:12px;line-height:1.6;">Wenn der Körper genährt ist, kann der Geist klar sein.</p>
+    <a href="https://therootbrands.com/eu/product/trinity-pack-6/marioleonhardt" target="_blank" class="link-btn">The Root Brands — Trinity Pack ↗</a>
+    <div style="margin-top:3rem;"></div>
+    <button class="btn" onclick="showRitual()">← Zurück</button>
+  </div>
+
+  <!-- Einstellungen View -->
+  <div class="view" id="einstellungenView">
+    <div class="view-header">Speichern & Backup</div>
+    <br>
+
+    <div style="background:#fff;border:0.5px solid #d3d1c7;border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1rem;">
+      <div style="font-size:14px;font-weight:500;margin-bottom:8px;">Backup exportieren & importieren</div>
+      <div style="font-size:13px;color:#6b6b65;margin-bottom:12px;line-height:1.6;">Exportiert alle deine Einträge als JSON-Datei in deinen Download-Ordner. Beim nächsten Öffnen einfach importieren — alle Daten sind sofort wieder da.</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn" onclick="exportJSON()">Backup exportieren</button>
+        <button class="btn" onclick="document.getElementById('importInput').click()">Backup importieren</button>
+      </div>
+    </div>
+
+    <div style="background:#fff;border:0.5px solid #d3d1c7;border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1rem;">
+      <div style="font-size:14px;font-weight:500;margin-bottom:8px;">Tipp — Speicherort bei jedem Download wählen <span style="font-size:11px;padding:2px 8px;border-radius:4px;background:#eaf3de;color:#3b6d11;margin-left:6px;">Chrome</span></div>
+      <div style="font-size:13px;color:#6b6b65;line-height:1.75;">
+        Aktiviere in Chrome diese Einstellung:<br><br>
+        <strong>Chrome → Einstellungen → Downloads → "Vor dem Download von Dateien nach dem Speicherort fragen"</strong> einschalten.<br><br>
+        Ab dann fragt Chrome bei jedem Backup wo du es speichern möchtest — so kannst du jedes Mal deinen "Backups Morgenritual" Ordner wählen.
+      </div>
+    </div>
+
+    <div style="background:#fff;border:0.5px solid #d3d1c7;border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1rem;">
+      <div style="font-size:14px;font-weight:500;margin-bottom:8px;">Alle Daten löschen</div>
+      <div style="font-size:13px;color:#6b6b65;margin-bottom:12px;">Setzt alle Einträge zurück. Erstelle vorher ein Backup.</div>
+      <button class="btn btn-danger" onclick="clearAll()">Alle Daten löschen</button>
+    </div>
+
+    <button class="btn" style="margin-top:0.5rem;" onclick="showRitual()">← Zurück</button>
+  </div>
+
+</div>
+<script>
+const STORAGE_KEY = 'morgenritual_tage';
+const mentorNames = { rohn: 'Jim Rohn', robbins: 'Tony Robbins', graziosi: 'Dean Graziosi' };
+
+const rituals = {
+  rohn: [
+    { title: "Stille & Ankommen", desc: "5 Minuten in vollständiger Stille sitzen. Kein Handy, keine Gedanken an den Tag. Nur ankommen.", source: "Jim Rohn — Stille ist der Anfang aller Weisheit", mins: 5 },
+    { title: "Dankbarkeit notieren", desc: "Schreibe 3 Dinge auf, für die du heute dankbar bist. Konkret und ehrlich.", source: "Jim Rohn — Tagebuch als strategisches Werkzeug", mins: 5 },
+    { title: "Lesen & Lernen", desc: "10–15 Minuten in einem Buch lesen. Philosophie, Biografie oder Strategie.", source: "Jim Rohn — Miss a meal, but not your reading", mins: 12 },
+    { title: "Spaziergang & Bewegung", desc: "15–20 Minuten ruhig gehen. Nicht als Sport — als Denkzeit. Rohn glaubte an die Verbindung von Körper und Geist, bewusst und nicht hastig.", source: "Jim Rohn — Körper und Geist in Einklang", mins: 15 },
+    { title: "Absicht setzen", desc: "Notiere deine eine Hauptabsicht für heute. Was ist der wichtigste Schritt zu deinem Nordstern?", source: "Dean Graziosi — Intention vor Aktion", mins: 5 },
+    { title: "Tagebuch schreiben", desc: "10 Minuten schreiben — was beschäftigt dich, was hast du gestern gelernt, was willst du heute erreichen? Das Tagebuch ist dein strategisches Werkzeug.", source: "Jim Rohn — Jahrzehntelange tägliche Praxis", mins: 10 }
+  ],
+  robbins: [
+    { title: "Kaltes Wasser", desc: "Direkt nach dem Aufwachen: kalt duschen oder ins Eisbad. Sofortiger Energie-Reset.", source: "Tony Robbins — Tägliches Ritual", mins: 5 },
+    { title: "Priming-Atmung", desc: "30 kraftvolle Atemzüge (Kapalbhati). Arme bei Einatmen hoch, bei Ausatmen runter.", source: "Tony Robbins — Priming", mins: 5 },
+    { title: "Dankbarkeits-Visualisierung", desc: "3 Momente tief visualisieren, für die du dankbar bist. Fühle es wirklich.", source: "Tony Robbins — Priming-Meditation", mins: 5 },
+    { title: "Stille & Ankommen", desc: "5 Minuten ruhig sitzen. Den aufgebauten Zustand festigen.", source: "Jim Rohn — Stille als Fundament", mins: 5 },
+    { title: "Absicht setzen", desc: "Was ist deine eine Hauptabsicht für heute? Schreib sie auf.", source: "Dean Graziosi — Tägliche Intention", mins: 5 },
+    { title: "Lesen", desc: "10 Minuten lesen. Auch an einem Hochenergie-Tag braucht der Geist Nahrung.", source: "Jim Rohn — Tägliches Lernen", mins: 10 },
+    { title: "Handy-freie Zone", desc: "Erst nach deinem Ritual: Nachrichten, E-Mails, Social Media. Nicht vorher.", source: "Alle drei — Innerer Zustand schützen", mins: 0 }
+  ],
+  graziosi: [
+    { title: "Stille & Ankommen", desc: "5 Minuten bevor du das Handy anschaust. Einfach da sein.", source: "Dean Graziosi — Bewusster Start", mins: 5 },
+    { title: "Absicht setzen", desc: "Was will ich heute erreichen, und warum ist es mir wichtig? Aufschreiben.", source: "Dean Graziosi — Daily Mindset Reset", mins: 5 },
+    { title: "Dankbarkeit notieren", desc: "3 Dinge, für die du dankbar bist. Konkret und heute relevant.", source: "Graziosi & Rohn — Dankbarkeit als Anker", mins: 5 },
+    { title: "Lesen & Lernen", desc: "10–15 Minuten lesen. Wissen als tägliche Investition in dich selbst.", source: "Jim Rohn — Bildung als Selbstrespekt", mins: 12 },
+    { title: "Bewegung", desc: "10–20 Minuten Bewegung. Sport, Spaziergang oder Atemübungen.", source: "Dean Graziosi & Tony Robbins — Körper aktivieren", mins: 15 },
+    { title: "Priming-Atmung", desc: "Kurze Atemsequenz: 10 kraftvolle Züge, dann 1 Minute ruhig atmen.", source: "Tony Robbins — Priming, vereinfacht", mins: 3 },
+    { title: "Handy-freie Zone", desc: "Das Ritual ist abgeschlossen. Jetzt erst: Außenwelt rein lassen.", source: "Alle drei — Schutz des Morgens", mins: 0 }
+  ]
+};
+
+// State
+let tage = loadTage();
+let selectedMentor = null;
+let currentStep = 0;
+let steps = [];
+let stepNotes = {};
+let stepTimes = {}; // tracks actual time spent per step
+let timerInterval = null;
+let timerRemaining = 0;
+let timerTotal = 0;
+let timerRunning = false;
+let folderHandle = null;
+const todayKey = new Date().toISOString().slice(0, 10);
+
+function loadTage() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch(e) { return {}; }
+}
+function saveManual() {
+  // Save to localStorage
+  var key = todayKey;
+  if (!tage[key]) {
+    tage[key] = { datum: key, mentor: selectedMentor, stepsTotal: 0, stepsDone: 0, completed: false, antworten: {}, savedAt: new Date().toISOString() };
+  }
+  tage[key].antworten = {
+    q1: document.getElementById('q1').value,
+    q2: document.getElementById('q2').value,
+    q3: document.getElementById('q3').value,
+    q4: document.getElementById('q4').value,
+    q5: document.getElementById('q5').value,
+    q6: document.getElementById('q6') ? document.getElementById('q6').value : ''
+  };
+  if (selectedMentor) {
+    tage[key].mentor = selectedMentor;
+    tage[key].stepsTotal = steps.length;
+    tage[key].stepsDone = currentStep;
+    tage[key].completed = currentStep >= steps.length;
+  }
+  tage[key].savedAt = new Date().toISOString();
+  saveTage();
+
+  var confirm = document.getElementById('saveConfirm');
+  if (confirm) { confirm.style.display = 'inline'; setTimeout(function() { confirm.style.display = 'none'; }, 2500); }
+}
+
+function toggleSaveInfo() {
+  var el = document.getElementById('saveInfo');
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+function saveTage() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(tage));
+  if (folderHandle) saveToFolder(true);
+  var today = tage[todayKey];
+  if (today) {
+    sbSave({
+      day_key: todayKey,
+      antworten: today.antworten || {},
+      mentor: today.mentor || null,
+      completed: today.completed || false
+    });
+  }
+}
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Init greeting
+document.getElementById('greetingText').textContent = 'Guten Morgen';
+document.getElementById('subtitleText').textContent = new Date().toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+// Load today's answers and ritual state if already saved
+(function() {
+  var today = tage[todayKey];
+  if (today && today.antworten) {
+    var a = today.antworten;
+    if (a.q1) document.getElementById('q1').value = a.q1;
+    if (a.q2) document.getElementById('q2').value = a.q2;
+    if (a.q3) document.getElementById('q3').value = a.q3;
+    if (a.q4) document.getElementById('q4').value = a.q4;
+    if (a.q5) document.getElementById('q5').value = a.q5;
+    if (a.q6) { var el6 = document.getElementById('q6'); if (el6) el6.value = a.q6; }
+    if (a.q1 || a.q2 || a.q3 || a.q4 || a.q5) {
+      var msg = document.getElementById('autoSaveMsg');
+      if (msg) msg.textContent = '✓ Heute bereits ausgefüllt — du kannst jederzeit ändern';
+    }
+  }
+  if (today && today.stepTimes) stepTimes = today.stepTimes;
+  if (today && today.stepNotes) stepNotes = today.stepNotes;
+})();
+
+// Show import banner if no existing data
+if (Object.keys(tage).length === 0) {
+  document.getElementById('importBanner').style.display = 'block';
+}
+
+// View management
+function showView(name) {
+  document.getElementById('ritualView').classList.add('hidden');
+  ['verlauf','profil','klarheit','einstellungen'].forEach(v => {
+    document.getElementById(v + 'View').classList.remove('active');
+  });
+  document.getElementById(name + 'View').classList.add('active');
+  if (name === 'verlauf') renderVerlauf();
+  if (name === 'profil') renderProfil();
+}
+function showRitual() {
+  document.getElementById('ritualView').classList.remove('hidden');
+  ['verlauf','profil','klarheit','einstellungen'].forEach(v => {
+    document.getElementById(v + 'View').classList.remove('active');
+  });
+}
+
+// Mentor select
+function selectMentor(key, el) {
+  document.querySelectorAll('.mentor-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedMentor = key;
+  steps = rituals[key];
+  currentStep = 0;
+  // Restore from today's saved data, don't reset
+  var today = tage[todayKey];
+  stepNotes = (today && today.stepNotes) ? today.stepNotes : {};
+  stepTimes = (today && today.stepTimes) ? today.stepTimes : {};
+  clearTimer();
+  autoSave();
+  renderSteps();
+  document.getElementById('stepArea').style.display = 'block';
+  document.getElementById('stepArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// Render ritual steps
+function renderSteps() {
+  const container = document.getElementById('stepsContainer');
+  container.innerHTML = '';
+  const pct = Math.round((currentStep / steps.length) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+
+  if (currentStep >= steps.length) {
+    container.innerHTML = '<div class="complete-msg"><div class="big">🌅</div>Dein Morgenritual ist abgeschlossen.<br>Du bist bereit für deinen Nordstern.</div>';
+    document.getElementById('progressFill').style.width = '100%';
+    saveToday(true);
+    return;
+  }
+
+  saveToday(false);
+
+  // Drift hint: check if user aborted here 3+ times recently
+  const currentTitle = steps[currentStep].title;
+  const recentKeys = Object.keys(tage).sort((a,b) => b.localeCompare(a)).slice(0, 14);
+  const abortCount = recentKeys.reduce(function(sum, k) {
+    var t = tage[k];
+    if (t.aborts) return sum + t.aborts.filter(function(a) { return a.step === currentTitle; }).length;
+    if (t.abortedAt === currentTitle) return sum + 1;
+    return sum;
+  }, 0);
+  const driftHtml = abortCount >= 3
+    ? '<div class="drift-hint"><strong>Du brichst hier öfter ab (' + abortCount + 'x).</strong><br>Mögliche Gründe: Energie fehlt · Schritt zu lang · Ablenkung.<br>Versuch: Schritt kürzen, Reihenfolge ändern, oder bewusst weitermachen.</div>'
+    : '';
+
+  steps.forEach(function(s, i) {
+    var div = document.createElement('div');
+    div.className = 'step-card' + (i === currentStep ? ' active' : i < currentStep ? ' done' : '');
+
+    var inner = '<div class="step-num">' + (i < currentStep ? '✓' : i + 1) + '</div><div style="flex:1;">';
+    inner += '<div class="step-title">' + s.title + '</div>';
+
+    // Done steps — show time spent and Nochmal option
+    if (i < currentStep) {
+      var st = stepTimes[i];
+      if (st) {
+        var pct = Math.round((st.spent / st.planned) * 100);
+        var col = pct >= 80 ? '#3b6d11' : '#854f0b';
+        inner += '<div style="font-size:11px;color:' + col + ';margin-top:3px;">' + fmtTime(st.spent) + ' von ' + fmtTime(st.planned) + ' Minuten</div>';
+      }
+      inner += '<button onclick="repeatStep(' + i + ')" style="margin-top:6px;font-size:11px;color:#9b9b93;background:transparent;border:none;cursor:pointer;padding:0;font-family:inherit;">↺ Nochmal machen</button>';
+    }
+
+    if (i === currentStep) {
+      inner += '<div class="step-desc">' + s.desc + '</div>';
+      inner += '<div class="step-source">' + s.source + '</div>';
+
+      // Dankbarkeit fields
+      if (s.title.indexOf('Dankbarkeit') >= 0) {
+        var saved = stepNotes[i] || ['','',''];
+        inner += '<div style="display:flex;flex-direction:column;gap:6px;margin-top:10px;">';
+        inner += '<input class="step-input" type="text" placeholder="Ich bin dankbar für..." value="' + esc(saved[0]) + '" onchange="saveNote(' + i + ',0,this.value)">';
+        inner += '<input class="step-input" type="text" placeholder="Ich bin dankbar für..." value="' + esc(saved[1]) + '" onchange="saveNote(' + i + ',1,this.value)">';
+        inner += '<input class="step-input" type="text" placeholder="Ich bin dankbar für..." value="' + esc(saved[2]) + '" onchange="saveNote(' + i + ',2,this.value)">';
+        inner += '</div>';
+      }
+
+      // Lesen fields
+      if (s.title.indexOf('Lesen') >= 0) {
+        var savedL = (stepNotes[i] && typeof stepNotes[i] === 'object' && !Array.isArray(stepNotes[i])) ? stepNotes[i] : {buch:'', warum:''};
+        inner += '<div style="display:flex;flex-direction:column;gap:6px;margin-top:10px;">';
+        inner += '<input class="step-input" type="text" placeholder="Was liest du? (Buchtitel, Artikel...)" value="' + esc(savedL.buch || '') + '" oninput="saveNoteL(' + i + ',\'buch\',this.value)">';
+        inner += '<textarea class="step-textarea" rows="2" placeholder="Warum liest du das?" oninput="saveNoteL(' + i + ',\'warum\',this.value)">' + esc(savedL.warum || '') + '</textarea>';
+        inner += '</div>';
+      }
+
+      inner += driftHtml;
+
+      if (s.mins > 0) inner += buildTimerHTML(s.mins);
+    }
+
+    inner += '</div>';
+    div.innerHTML = inner;
+    container.appendChild(div);
+  });
+
+  // Init timer state
+  var s = steps[currentStep];
+  if (s.mins > 0) {
+    timerRemaining = s.mins * 60;
+    timerTotal = timerRemaining;
+    timerRunning = false;
+    updateTimerDisplay();
+  }
+}
+
+function saveNote(idx, pos, val) {
+  if (!Array.isArray(stepNotes[idx])) stepNotes[idx] = ['','',''];
+  stepNotes[idx][pos] = val;
+  saveToday(false);
+}
+function saveNoteL(idx, key, val) {
+  if (typeof stepNotes[idx] !== 'object' || Array.isArray(stepNotes[idx])) stepNotes[idx] = {buch:'', warum:''};
+  stepNotes[idx][key] = val;
+  saveToday(false);
+}
+
+function buildTimerHTML(mins) {
+  return '<div class="timer-block">' +
+    '<div class="timer-display" id="timerDisplay">' + fmtTime(mins * 60) + '</div>' +
+    '<div class="timer-progress"><div class="timer-progress-fill" id="timerBar" style="width:100%"></div></div>' +
+    '<div class="timer-btns">' +
+    '<button class="tbtn start" id="timerStartBtn" onclick="toggleTimer()">&#9654; Start</button>' +
+    '<button class="tbtn" onclick="resetTimer(' + mins + ')">&#8635;</button>' +
+    '</div></div>';
+}
+
+function fmtTime(secs) {
+  var m = Math.floor(secs / 60), s = secs % 60;
+  return String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+}
+function toggleTimer() { timerRunning ? pauseTimer() : startTimer(); }
+function startTimer() {
+  if (timerRemaining <= 0) return;
+  timerRunning = true;
+  var btn = document.getElementById('timerStartBtn');
+  if (btn) btn.textContent = '⏸ Pause';
+  timerInterval = setInterval(function() {
+    timerRemaining--;
+    updateTimerDisplay();
+    if (timerRemaining <= 0) {
+      clearInterval(timerInterval);
+      timerRunning = false;
+      var d = document.getElementById('timerDisplay');
+      if (d) { d.textContent = '✓ Fertig'; d.classList.add('done'); }
+      var b = document.getElementById('timerStartBtn');
+      if (b) { b.textContent = '✓ Fertig'; b.disabled = true; }
+      playTimerDoneSound();
+      // Auto-record successful completion
+      var s = steps[currentStep];
+      if (s) {
+        if (!stepTimes[currentStep]) stepTimes[currentStep] = { title: s.title, planned: s.mins * 60, attempts: [], successes: 0 };
+        if (!stepTimes[currentStep].successes) stepTimes[currentStep].successes = 0;
+        stepTimes[currentStep].successes++;
+        saveToday(false);
+      }
+    }
+  }, 1000);
+}
+function pauseTimer() {
+  clearInterval(timerInterval);
+  timerRunning = false;
+  var btn = document.getElementById('timerStartBtn');
+  if (btn) btn.textContent = '▶ Start';
+}
+function resetTimer(mins) {
+  clearInterval(timerInterval);
+  timerRunning = false;
+  timerRemaining = mins * 60;
+  timerTotal = timerRemaining;
+  var d = document.getElementById('timerDisplay');
+  if (d) { d.textContent = fmtTime(timerRemaining); d.classList.remove('done'); }
+  var b = document.getElementById('timerStartBtn');
+  if (b) { b.textContent = '▶ Start'; b.disabled = false; }
+  updateTimerDisplay();
+}
+function clearTimer() {
+  clearInterval(timerInterval);
+  timerRunning = false; timerRemaining = 0; timerTotal = 0;
+}
+function updateTimerDisplay() {
+  var d = document.getElementById('timerDisplay');
+  var bar = document.getElementById('timerBar');
+  if (d) d.textContent = fmtTime(timerRemaining);
+  if (bar && timerTotal > 0) bar.style.width = Math.round((timerRemaining / timerTotal) * 100) + '%';
+}
+
+function playTimerDoneSound() {
+  // Three gentle rising tones — "you can open your eyes"
+  try {
+    var ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [440, 528, 660].forEach(function(freq, i) {
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0, ctx.currentTime + i * 0.3);
+      gain.gain.linearRampToValueAtTime(0.22, ctx.currentTime + i * 0.3 + 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.3 + 1.2);
+      osc.start(ctx.currentTime + i * 0.3);
+      osc.stop(ctx.currentTime + i * 0.3 + 1.3);
+    });
+  } catch(e) {}
+}
+
+function playAbortSound() {
+  // Short descending tone — neutral, not harsh
+  try {
+    var ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [440, 370].forEach(function(freq, i) {
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0, ctx.currentTime + i * 0.18);
+      gain.gain.linearRampToValueAtTime(0.15, ctx.currentTime + i * 0.18 + 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.18 + 0.4);
+      osc.start(ctx.currentTime + i * 0.18);
+      osc.stop(ctx.currentTime + i * 0.18 + 0.5);
+    });
+  } catch(e) {}
+}
+
+function playCompletionEffect() {
+  // Green flash on progress bar
+  var fill = document.getElementById('progressFill');
+  if (fill) {
+    fill.style.transition = 'background 0.1s';
+    fill.style.background = '#3b6d11';
+    setTimeout(function() {
+      fill.style.background = '#378add';
+      fill.style.transition = 'background 0.6s, width 0.4s';
+    }, 400);
+  }
+  // Green flash overlay on step container
+  var container = document.getElementById('stepsContainer');
+  if (container) {
+    var flash = document.createElement('div');
+    flash.style.cssText = 'position:absolute;inset:0;background:#eaf3de;border-radius:12px;opacity:0;pointer-events:none;transition:opacity 0.15s;z-index:10;';
+    container.style.position = 'relative';
+    container.appendChild(flash);
+    setTimeout(function() { flash.style.opacity = '0.85'; }, 10);
+    setTimeout(function() { flash.style.opacity = '0'; }, 350);
+    setTimeout(function() { if (flash.parentNode) flash.parentNode.removeChild(flash); }, 700);
+  }
+  // Soft chime using Web Audio API
+  try {
+    var ctx = new (window.AudioContext || window.webkitAudioContext)();
+    var notes = [523, 659, 784]; // C, E, G — major chord
+    notes.forEach(function(freq, i) {
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0, ctx.currentTime + i * 0.08);
+      gain.gain.linearRampToValueAtTime(0.18, ctx.currentTime + i * 0.08 + 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.08 + 0.5);
+      osc.start(ctx.currentTime + i * 0.08);
+      osc.stop(ctx.currentTime + i * 0.08 + 0.6);
+    });
+  } catch(e) {}
+}
+
+function repeatStep(idx) {
+  // Simply go back — new attempt only recorded when "Schritt abgeschlossen" clicked
+  clearTimer();
+  currentStep = idx;
+  renderSteps();
+}
+
+function nextStep() {
+  if (currentStep < steps.length) {
+    var s = steps[currentStep];
+    var plannedSecs = s.mins * 60;
+    var spentSecs = plannedSecs > 0 ? (plannedSecs - timerRemaining) : 0;
+
+    // Only record time if timer was actually started
+    if (plannedSecs > 0 && spentSecs > 0) {
+      if (!stepTimes[currentStep]) {
+        stepTimes[currentStep] = { title: s.title, planned: plannedSecs, attempts: [] };
+      }
+      stepTimes[currentStep].attempts.push(spentSecs);
+      var attempts = stepTimes[currentStep].attempts;
+      stepTimes[currentStep].spent = attempts[attempts.length - 1];
+    }
+
+    // Show hint if this attempt was short (more than 20% remaining)
+    var shortcut = plannedSecs > 0 && spentSecs > 0 && timerRemaining > plannedSecs * 0.2;
+    var notStarted = plannedSecs > 0 && spentSecs === 0 && timerRemaining === plannedSecs;
+
+    clearTimer();
+    currentStep++;
+    playCompletionEffect();
+    renderSteps();
+    saveToday(currentStep >= steps.length);
+
+    if (shortcut || notStarted) {
+      var totalAttempts = stepTimes[currentStep-1] ? stepTimes[currentStep-1].attempts.length : 1;
+      var msg = notStarted
+        ? 'Timer für "' + s.title + '" wurde nicht gestartet.'
+        : 'Du hast "' + s.title + '" nach ' + fmtTime(spentSecs) + ' von ' + fmtTime(plannedSecs) + ' abgeschlossen.' + (totalAttempts > 1 ? ' (' + totalAttempts + '. Versuch)' : '');
+      var hint = document.createElement('div');
+      hint.style.cssText = 'background:#faeeda;border-radius:10px;padding:12px 16px;font-size:13px;color:#633806;line-height:1.6;margin-bottom:10px;';
+      hint.innerHTML = msg + '<br><span style="color:#854f0b;font-size:12px;">Wird im Profil als Muster sichtbar.</span>';
+      var container = document.getElementById('stepsContainer');
+      if (container) container.insertBefore(hint, container.firstChild);
+      setTimeout(function() { if (hint.parentNode) hint.parentNode.removeChild(hint); }, 5000);
+    }
+  }
+}
+function prevStep() {
+  if (currentStep > 0) {
+    clearTimer();
+    currentStep--;
+    renderSteps();
+    saveToday(false);
+  }
+}
+
+// Save today
+function saveToday(completed) {
+  var existing = tage[todayKey] || {};
+  tage[todayKey] = {
+    datum: todayKey,
+    mentor: selectedMentor || existing.mentor || null,
+    stepsTotal: steps.length || existing.stepsTotal || 0,
+    stepsDone: currentStep,
+    completed: completed,
+    antworten: {
+      q1: document.getElementById('q1').value || (existing.antworten && existing.antworten.q1) || '',
+      q2: document.getElementById('q2').value || (existing.antworten && existing.antworten.q2) || '',
+      q3: document.getElementById('q3').value,
+    q4: document.getElementById('q4').value || (existing.antworten && existing.antworten.q4) || '',
+      q5: document.getElementById('q5').value || (existing.antworten && existing.antworten.q5) || ''
+    },
+    stepNotes: stepNotes,
+    stepTimes: stepTimes,
+    abortedAt: existing.abortedAt || null,
+    aborts: existing.aborts || [],
+    savedAt: new Date().toISOString()
+  };
+  saveTage();
+}
+
+// Auto-save beim Verlassen jedes Feldes (blur)
+function autoSave() {
+  var key = todayKey;
+  var existing = tage[key] || {};
+  if (!tage[key]) {
+    tage[key] = { datum: key, mentor: existing.mentor || null, stepsTotal: existing.stepsTotal || 0, stepsDone: existing.stepsDone || 0, completed: false, antworten: {}, savedAt: new Date().toISOString() };
+  }
+  tage[key].antworten = {
+    q1: document.getElementById('q1').value,
+    q2: document.getElementById('q2').value,
+    q3: document.getElementById('q3').value,
+    q4: document.getElementById('q4').value,
+    q5: document.getElementById('q5').value,
+    q6: document.getElementById('q6') ? document.getElementById('q6').value : ''
+  };
+  if (selectedMentor) tage[key].mentor = selectedMentor;
+  tage[key].savedAt = new Date().toISOString();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(tage));
+  var msg = document.getElementById('autoSaveMsg');
+  if (msg) {
+    var now = new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+    msg.textContent = '✓ Gespeichert um ' + now;
+    clearTimeout(msg._t);
+    msg._t = setTimeout(function() { msg.textContent = ''; }, 4000);
+  }
+}
+
+['q1','q2','q3','q4','q5','q6'].forEach(function(id) {
+  document.getElementById(id).addEventListener('blur', autoSave);
+});
+
+// Custom resize handle for writing textareas
+function startResize(e, id) {
+  e.preventDefault();
+  var ta = document.getElementById(id);
+  var startY = e.clientY;
+  var startH = ta.offsetHeight;
+  function onMove(ev) {
+    var newH = Math.max(80, startH + ev.clientY - startY);
+    ta.style.height = newH + 'px';
+  }
+  function onUp() {
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+  }
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onUp);
+}
+
+// Writing area
+var WRITING_KEY = 'morgenritual_writing';
+var writing = loadWriting();
+
+function loadWriting() {
+  try { return JSON.parse(localStorage.getItem(WRITING_KEY)) || {}; } catch(e) { return {}; }
+}
+function saveWriting() {
+  localStorage.setItem(WRITING_KEY, JSON.stringify(writing));
+}
+
+function switchWritingTab(tab, el) {
+  ['stephen','comedy','creator'].forEach(function(t) {
+    document.getElementById('writing-' + t).style.display = tab === t ? 'block' : 'none';
+    var btn = document.getElementById('tab-' + t);
+    btn.style.background = tab === t ? '#e6f1fb' : 'transparent';
+    btn.style.color = tab === t ? '#185fa5' : '#6b6b65';
+    btn.style.borderColor = tab === t ? '#185fa5' : '#b4b2a9';
+  });
+}
+
+function saveWritingDoc(project, val) {
+  // Save as continuous document — one text per project, not per day
+  writing['doc_' + project] = { text: val, updatedAt: new Date().toISOString() };
+  saveWriting();
+  var msg = document.getElementById('writingSaveMsg');
+  if (msg) {
+    var now = new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+    msg.textContent = '✓ Gespeichert um ' + now;
+    clearTimeout(msg._t);
+    msg._t = setTimeout(function() { msg.textContent = ''; }, 3000);
+  }
+}
+
+function exportWriting(project) {
+  var doc = writing['doc_' + project];
+  var text = doc ? doc.text : '';
+  var title = project === 'stephen' ? 'Sir Stephen & Me' : project === 'comedy' ? 'Comedy' : 'Creator Business';
+  var blob = new Blob([title + '\n' + '═'.repeat(40) + '\n\n' + text], { type: 'text/plain;charset=utf-8' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = project + '-' + todayKey + '.txt';
+  a.click();
+}
+
+// Load writing documents on startup
+(function() {
+  ['stephen','comedy','creator'].forEach(function(project) {
+    var doc = writing['doc_' + project];
+    if (doc && doc.text) {
+      document.getElementById('write-' + project).value = doc.text;
+      var d = new Date(doc.updatedAt).toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' });
+      var m = document.getElementById(project + '-meta');
+      if (m) m.textContent = 'Zuletzt bearbeitet: ' + d;
+    }
+  });
+})();
+
+// Auto-save writing on input
+document.getElementById('write-stephen').addEventListener('input', function() { saveWritingDoc('stephen', this.value); });
+document.getElementById('write-comedy').addEventListener('input', function() { saveWritingDoc('comedy', this.value); });
+document.getElementById('write-creator').addEventListener('input', function() { saveWritingDoc('creator', this.value); });
+
+// Verlauf
+function renderVerlauf() {
+  var list = document.getElementById('verlaufList');
+  var keys = Object.keys(tage).sort(function(a,b) { return b.localeCompare(a); });
+  document.getElementById('verlaufSub').textContent = keys.length + (keys.length === 1 ? ' Tag gespeichert' : ' Tage gespeichert');
+  if (!keys.length) {
+    list.innerHTML = '<div class="empty-state">Noch keine Tage gespeichert.</div>';
+    return;
+  }
+  list.innerHTML = keys.map(function(k) {
+    var t = tage[k];
+    var d = new Date(t.datum + 'T12:00:00').toLocaleDateString('de-DE', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' });
+    var abortCount = (t.aborts && t.aborts.length) ? t.aborts.length : (t.abortedAt ? 1 : 0);
+    var badge = t.completed
+      ? '<span class="badge">✓ Abgeschlossen</span>'
+      : (abortCount > 0 ? '<span class="badge aborted">' + abortCount + 'x abgebrochen</span>' : '<span class="badge partial">' + t.stepsDone + '/' + t.stepsTotal + ' Schritte</span>');
+    var mn = mentorNames[t.mentor] || t.mentor || '';
+    var a = t.antworten || {};
+    var sn = t.stepNotes || {};
+    var dankHTML = '';
+    Object.keys(sn).forEach(function(idx) {
+      var n = sn[idx];
+      if (Array.isArray(n) && n.some(function(x) { return x; })) {
+        dankHTML += '<div class="detail-q">Dankbarkeit</div><div class="detail-a">' + n.filter(Boolean).map(esc).join(' · ') + '</div>';
+      }
+      if (n && typeof n === 'object' && !Array.isArray(n) && n.buch) {
+        dankHTML += '<div class="detail-q">Lesen</div><div class="detail-a">' + esc(n.buch) + (n.warum ? ' — <em>' + esc(n.warum) + '</em>' : '') + '</div>';
+      }
+    });
+    return '<div class="day-card">' +
+      '<div class="day-top"><div class="day-date">' + d + '</div>' + badge + '</div>' +
+      '<div class="day-steps">' + mn + '</div>' +
+      '<div class="day-detail">' +
+      (a.q1 ? '<div class="detail-q">Wie geht es mir heute?</div><div class="detail-a">' + esc(a.q1) + '</div>' : '') +
+      (a.q2 ? '<div class="detail-q">Mein Nordstern</div><div class="detail-a">' + esc(a.q2) + '</div>' : '') +
+      (a.q3 ? '<div class="detail-q">Was ich heute kreiere</div><div class="detail-a">' + esc(a.q3) + '</div>' : '') +
+      (a.q4 ? '<div class="detail-q">Wo ich mich zeige</div><div class="detail-a">' + esc(a.q4) + '</div>' : '') +
+      (a.q5 ? '<div class="detail-q">Warum mein Nordstern heute wichtig ist</div><div class="detail-a">' + esc(a.q5) + '</div>' : '') +
+      (function() {
+        var w = writing[k] || {};
+        var whtml = '';
+        if (w.stephen) whtml += '<div class="detail-q">Sir Stephen & Me</div><div class="detail-a" style="white-space:pre-wrap;">' + esc(w.stephen) + '</div>';
+        if (w.comedy) whtml += '<div class="detail-q">Comedy</div><div class="detail-a" style="white-space:pre-wrap;">' + esc(w.comedy) + '</div>';
+        if (w.creator) whtml += '<div class="detail-q">Creator Business</div><div class="detail-a" style="white-space:pre-wrap;">' + esc(w.creator) + '</div>';
+        return whtml;
+      })() +
+      dankHTML +
+      '</div></div>';
+  }).join('');
+}
+
+function toggleDay(k) {
+  var el = document.getElementById('detail-' + k);
+  if (el) el.classList.toggle('open');
+}
+
+// Profil
+function renderProfil() {
+  var el = document.getElementById('profilContent');
+  var keys = Object.keys(tage).sort(function(a,b) { return b.localeCompare(a); });
+  if (!keys.length) {
+    el.innerHTML = '<div class="empty-state">Noch keine Einträge.</div>';
+    return;
+  }
+
+  // Last saved indicator
+  var todayEntry = tage[todayKey];
+  var lastSavedStr = '';
+  if (todayEntry && todayEntry.savedAt) {
+    var ls = new Date(todayEntry.savedAt);
+    lastSavedStr = '<div style="font-size:12px;color:#9b9b93;margin-bottom:1.5rem;">✓ Zuletzt gespeichert heute um ' + ls.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' Uhr</div>';
+  }
+
+  // Streak
+  var streak = 0;
+  for (var i = 0; i < 365; i++) {
+    var d = new Date(); d.setDate(d.getDate() - i);
+    var k = d.toISOString().slice(0,10);
+    if (tage[k]) streak++; else if (i > 0) break;
+  }
+
+  // Mentor counts
+  var mc = {};
+  keys.forEach(function(k) { var m = tage[k].mentor; if (m) mc[m] = (mc[m]||0)+1; });
+
+  // Abort counts — from aborts array (new) or abortedAt (old)
+  var ac = {};
+  var abortLastTime = {};
+  keys.forEach(function(k) {
+    var t = tage[k];
+    if (t.aborts && t.aborts.length) {
+      t.aborts.forEach(function(a) {
+        ac[a.step] = (ac[a.step]||0)+1;
+        abortLastTime[a.step] = a; // keep last
+      });
+    } else if (t.abortedAt) {
+      ac[t.abortedAt] = (ac[t.abortedAt]||0)+1;
+    }
+  });
+  var abortEntries = Object.keys(ac).sort(function(a,b) { return ac[b]-ac[a]; });
+
+  // Nordsterne
+  var seen = {};
+  var nordsterne = [];
+  keys.forEach(function(k) {
+    var q2 = tage[k].antworten && tage[k].antworten.q2;
+    if (q2 && !seen[q2]) { seen[q2] = true; nordsterne.push(q2); }
+  });
+  nordsterne = nordsterne.slice(0, 4);
+
+  var html = lastSavedStr + '<div class="metric-grid">' +
+    '<div class="metric"><div class="metric-label">Einträge gesamt</div><div class="metric-val">' + keys.length + '</div></div>' +
+    '<div class="metric"><div class="metric-label">Aktuelle Serie</div><div class="metric-val">' + streak + ' Tage</div></div>' +
+    '</div>';
+
+  if (nordsterne.length) {
+    html += '<div class="section-label">Dein Nordstern</div><div class="pill-row">';
+    html += nordsterne.map(function(n) { return '<div class="pill">' + esc(n) + '</div>'; }).join('');
+    html += '</div>';
+  }
+
+  if (Object.keys(mc).length) {
+    html += '<div class="section-label">Mentoren-Wahl</div><div class="pill-row">';
+    html += Object.keys(mc).sort(function(a,b){return mc[b]-mc[a];}).map(function(m) {
+      return '<div class="pill-gray">' + (mentorNames[m]||m) + ': <strong>' + mc[m] + 'x</strong></div>';
+    }).join('');
+    html += '</div>';
+  }
+
+  if (abortEntries.length) {
+    html += '<div class="section-label">Abbruch-Muster</div><div class="abort-box">';
+    abortEntries.forEach(function(step) {
+      var last = abortLastTime[step];
+      var timeStr = (last && last.planned && last.spent) ? ' — zuletzt nach ' + fmtTime(last.spent) + ' von ' + fmtTime(last.planned) : '';
+      html += '<div class="abort-row"><span>' + esc(step) + timeStr + '</span><span style="color:#854f0b;font-weight:500;">' + ac[step] + 'x</span></div>';
+    });
+    if (ac[abortEntries[0]] >= 3) {
+      html += '<div style="margin-top:8px;padding-top:8px;border-top:0.5px solid #d3d1c7;font-size:12px;color:#633806;line-height:1.6;">Du brichst häufig bei <strong>' + esc(abortEntries[0]) + '</strong> ab. Das ist keine Schwäche — es ist Information.</div>';
+    }
+    html += '</div>';
+  }
+
+  // Step timing patterns
+  var timingData = {};
+  keys.forEach(function(k) {
+    var st = tage[k].stepTimes;
+    if (!st) return;
+    Object.values(st).forEach(function(t) {
+      if (!timingData[t.title]) timingData[t.title] = { lastAbort: 0, planned: t.planned, shortcuts: 0, totalAttempts: 0, successes: 0 };
+      var attempts = t.attempts || (t.spent !== undefined ? [t.spent] : []);
+      attempts.forEach(function(spent) {
+        timingData[t.title].lastAbort = spent;
+        timingData[t.title].totalAttempts++;
+        if (spent < t.planned * 0.8) timingData[t.title].shortcuts++;
+      });
+      if (t.successes) timingData[t.title].successes += t.successes;
+    });
+  });
+  var timingEntries = Object.entries(timingData).filter(function(e) { return e[1].totalAttempts >= 1 || e[1].successes >= 1; });
+  if (timingEntries.length) {
+    html += '<div class="section-label">Wie lange du wirklich bleibst</div>';
+    html += '<div style="background:#f1efe8;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem;">';
+    html += '<div style="font-size:12px;color:#9b9b93;margin-bottom:10px;">Letzter Versuch — nicht Durchschnitt</div>';
+    timingEntries.forEach(function(e) {
+      var title = e[0], d = e[1];
+      html += '<div style="margin-bottom:14px;">';
+      html += '<div style="font-size:13px;font-weight:500;margin-bottom:6px;">' + esc(title) + '</div>';
+
+      // Abort line
+      if (d.totalAttempts >= 1) {
+        var pct = Math.round((d.lastAbort / d.planned) * 100);
+        var color = pct >= 80 ? '#3b6d11' : pct >= 50 ? '#854f0b' : '#791f1f';
+        html += '<div style="display:flex;justify-content:space-between;font-size:12px;color:#6b6b65;margin-bottom:3px;">';
+        html += '<span>Letzter Abbruch</span><span style="color:' + color + ';font-weight:500;">' + fmtTime(d.lastAbort) + ' / ' + fmtTime(d.planned) + '</span></div>';
+        html += '<div style="height:4px;background:#d3d1c7;border-radius:2px;margin-bottom:4px;"><div style="height:4px;background:' + color + ';border-radius:2px;width:' + Math.min(pct,100) + '%;"></div></div>';
+        html += '<div style="font-size:11px;color:#854f0b;">' + d.shortcuts + 'x vorzeitig abgeschlossen</div>';
+      }
+
+      // Success line
+      if (d.successes >= 1) {
+        html += '<div style="display:flex;justify-content:space-between;font-size:12px;color:#6b6b65;margin-bottom:3px;margin-top:' + (d.totalAttempts >= 1 ? '8px' : '0') + ';">';
+        html += '<span>Vollständig</span><span style="color:#3b6d11;font-weight:500;">' + fmtTime(d.planned) + ' / ' + fmtTime(d.planned) + '</span></div>';
+        html += '<div style="height:4px;background:#d3d1c7;border-radius:2px;margin-bottom:4px;"><div style="height:4px;background:#3b6d11;border-radius:2px;width:100%;"></div></div>';
+        html += '<div style="font-size:11px;color:#3b6d11;">✓ ' + d.successes + 'x vollständig durchgeführt</div>';
+      }
+
+      html += '</div>';
+    });
+    html += '</div>';
+  }
+
+  // Daily answers over time
+  html += '<div class="section-label">Deine täglichen Antworten</div>';
+  html += '<div style="font-size:13px;color:#6b6b65;margin-bottom:12px;line-height:1.6;">Die Muster entstehen durch Wiederholung. Hier siehst du alle deine Antworten im Überblick.</div>';
+
+  // Befinden pattern
+  var befinden = keys.map(function(k) {
+    var a = tage[k].antworten;
+    return a && a.q1 ? { date: k, val: a.q1 } : null;
+  }).filter(Boolean).slice(0, 10);
+
+  if (befinden.length) {
+    html += '<div style="background:#f1efe8;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem;">';
+    html += '<div style="font-size:12px;font-weight:500;color:#6b6b65;margin-bottom:8px;">Wie es mir geht — die letzten ' + befinden.length + ' Tage</div>';
+    befinden.forEach(function(e) {
+      var d = new Date(e.date + 'T12:00:00').toLocaleDateString('de-DE', { weekday: 'short', day: 'numeric', month: 'short' });
+      html += '<div style="display:flex;gap:10px;margin-bottom:6px;font-size:13px;"><span style="color:#9b9b93;white-space:nowrap;min-width:70px;">' + d + '</span><span>' + esc(e.val) + '</span></div>';
+    });
+    html += '</div>';
+  }
+
+  // Nordstern pattern
+  var nordsternAll = keys.map(function(k) {
+    var a = tage[k].antworten;
+    return a && a.q2 ? { date: k, val: a.q2 } : null;
+  }).filter(Boolean).slice(0, 10);
+
+  if (nordsternAll.length) {
+    html += '<div style="background:#f1efe8;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem;">';
+    html += '<div style="font-size:12px;font-weight:500;color:#6b6b65;margin-bottom:8px;">Mein Nordstern — wie er sich beschreibt</div>';
+    nordsternAll.forEach(function(e) {
+      var d = new Date(e.date + 'T12:00:00').toLocaleDateString('de-DE', { weekday: 'short', day: 'numeric', month: 'short' });
+      html += '<div style="display:flex;gap:10px;margin-bottom:6px;font-size:13px;"><span style="color:#9b9b93;white-space:nowrap;min-width:70px;">' + d + '</span><span>' + esc(e.val) + '</span></div>';
+    });
+    html += '</div>';
+  }
+
+  // Kreation pattern
+  var kreation = keys.map(function(k) {
+    var a = tage[k].antworten;
+    return a && a.q3 ? { date: k, val: a.q3 } : null;
+  }).filter(Boolean).slice(0, 10);
+
+  if (kreation.length) {
+    html += '<div style="background:#f1efe8;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem;">';
+    html += '<div style="font-size:12px;font-weight:500;color:#6b6b65;margin-bottom:8px;">Was ich kreiere — meine täglichen Absichten</div>';
+    kreation.forEach(function(e) {
+      var d = new Date(e.date + 'T12:00:00').toLocaleDateString('de-DE', { weekday: 'short', day: 'numeric', month: 'short' });
+      html += '<div style="display:flex;gap:10px;margin-bottom:6px;font-size:13px;"><span style="color:#9b9b93;white-space:nowrap;min-width:70px;">' + d + '</span><span>' + esc(e.val) + '</span></div>';
+    });
+    html += '</div>';
+  }
+
+  // Wo ich mich zeige
+  var sichtbar = keys.map(function(k) {
+    var a = tage[k].antworten;
+    return a && a.q4 ? { date: k, val: a.q4 } : null;
+  }).filter(Boolean).slice(0, 10);
+
+  if (sichtbar.length) {
+    html += '<div style="background:#f1efe8;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem;">';
+    html += '<div style="font-size:12px;font-weight:500;color:#6b6b65;margin-bottom:8px;">Wo ich mich zeige</div>';
+    sichtbar.forEach(function(e) {
+      var d = new Date(e.date + 'T12:00:00').toLocaleDateString('de-DE', { weekday: 'short', day: 'numeric', month: 'short' });
+      html += '<div style="display:flex;gap:10px;margin-bottom:6px;font-size:13px;"><span style="color:#9b9b93;white-space:nowrap;min-width:70px;">' + d + '</span><span>' + esc(e.val) + '</span></div>';
+    });
+    html += '</div>';
+  }
+
+  // Warum der Nordstern
+  var warum = keys.map(function(k) {
+    var a = tage[k].antworten;
+    return a && a.q5 ? { date: k, val: a.q5 } : null;
+  }).filter(Boolean).slice(0, 10);
+
+  if (warum.length) {
+    html += '<div style="background:#f1efe8;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem;">';
+    html += '<div style="font-size:12px;font-weight:500;color:#6b6b65;margin-bottom:8px;">Warum mein Nordstern heute wichtig ist</div>';
+    warum.forEach(function(e) {
+      var d = new Date(e.date + 'T12:00:00').toLocaleDateString('de-DE', { weekday: 'short', day: 'numeric', month: 'short' });
+      html += '<div style="display:flex;gap:10px;margin-bottom:6px;font-size:13px;"><span style="color:#9b9b93;white-space:nowrap;min-width:70px;">' + d + '</span><span>' + esc(e.val) + '</span></div>';
+    });
+    html += '</div>';
+  }
+
+  // Dankbarkeit pattern
+  var dankAll = [];
+  keys.forEach(function(k) {
+    var sn = tage[k].stepNotes || {};
+    Object.keys(sn).forEach(function(idx) {
+      var n = sn[idx];
+      if (Array.isArray(n) && n.some(function(x) { return x; })) {
+        dankAll.push({ date: k, items: n.filter(Boolean) });
+      }
+    });
+  });
+  dankAll = dankAll.slice(0, 10);
+
+  if (dankAll.length) {
+    html += '<div style="background:#f1efe8;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem;">';
+    html += '<div style="font-size:12px;font-weight:500;color:#6b6b65;margin-bottom:8px;">Wofür ich dankbar bin</div>';
+    dankAll.forEach(function(e) {
+      var d = new Date(e.date + 'T12:00:00').toLocaleDateString('de-DE', { weekday: 'short', day: 'numeric', month: 'short' });
+      html += '<div style="display:flex;gap:10px;margin-bottom:8px;font-size:13px;"><span style="color:#9b9b93;white-space:nowrap;min-width:70px;">' + d + '</span><div>' + e.items.map(function(i) { return '· ' + esc(i); }).join('<br>') + '</div></div>';
+    });
+    html += '</div>';
+  }
+
+  el.innerHTML = html;
+}
+
+function saveAbort() {
+  if (!selectedMentor || !steps.length) {
+    alert('Starte zuerst ein Ritual und wähle einen Mentor.');
+    return;
+  }
+  var s = steps[currentStep] && currentStep < steps.length ? steps[currentStep] : steps[steps.length - 1];
+  var abortedAt = s.title;
+  var plannedSecs = s.mins * 60;
+  var spentSecs = plannedSecs > 0 ? (plannedSecs - timerRemaining) : 0;
+
+  if (!tage[todayKey]) {
+    tage[todayKey] = { datum: todayKey, mentor: selectedMentor, stepsTotal: steps.length, stepsDone: currentStep, completed: false, antworten: {}, savedAt: new Date().toISOString() };
+  }
+  if (!Array.isArray(tage[todayKey].aborts)) tage[todayKey].aborts = [];
+  tage[todayKey].aborts.push({
+    step: abortedAt,
+    planned: plannedSecs,
+    spent: spentSecs,
+    time: new Date().toISOString()
+  });
+  tage[todayKey].abortedAt = abortedAt;
+  saveTage();
+  playAbortSound();
+
+  var abortCount = tage[todayKey].aborts.length;
+  var msg = document.getElementById('abortMsg');
+  msg.style.display = 'block';
+  msg.textContent = abortCount + '. Abbruch heute bei "' + abortedAt + '"' + (spentSecs > 0 ? ' nach ' + fmtTime(spentSecs) : '') + '.';
+  renderProfil();
+}
+
+function copyAnalyse() {
+  var data = Object.values(tage).slice(0, 30);
+  var text = 'Analysiere meine täglichen Morgenritual-Einträge und erstelle ein tiefes, ehrliches Portrait von mir als Person. Was sind meine Muster, mein Nordstern, meine Stärken und blinden Flecken?\n\nMeine Einträge:\n' + JSON.stringify(data, null, 2);
+  navigator.clipboard.writeText(text).then(function() {
+    var msg = document.getElementById('copyMsg');
+    msg.style.display = 'block';
+    setTimeout(function() { msg.style.display = 'none'; }, 4000);
+  });
+}
+
+// Folder connection (Chrome/Edge)
+async function connectFolder() {
+  if (!window.showDirectoryPicker) {
+    alert('Ordner-Verbindung funktioniert nur in Chrome oder Edge, nicht in Safari.');
+    return;
+  }
+  try {
+    folderHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+    document.getElementById('folderName').textContent = folderHandle.name;
+    document.getElementById('folderIndicator').style.display = 'flex';
+    document.getElementById('folderBtn').style.background = '#eaf3de';
+    document.getElementById('folderBtn').style.color = '#3b6d11';
+    var status = document.getElementById('folderStatus');
+    if (status) status.textContent = 'Verbunden mit: ' + folderHandle.name;
+    var s = document.getElementById('btnSaveFolder');
+    var l = document.getElementById('btnLoadFolder');
+    if (s) s.style.display = 'inline-block';
+    if (l) l.style.display = 'inline-block';
+  } catch(e) { if (e.name !== 'AbortError') alert('Ordner konnte nicht verbunden werden.'); }
+}
+
+function clearAll() {
+  if (!confirm('Wirklich alle Daten löschen? Erstelle zuerst ein Backup.')) return;
+  tage = {};
+  saveTage();
+  alert('Alle Daten gelöscht.');
+}
+
+async function saveToFolder(silent) {
+  if (!folderHandle) return;
+  try {
+    var fileName = 'morgenritual_' + todayKey + '.json';
+    var fh = await folderHandle.getFileHandle(fileName, { create: true });
+    var writable = await fh.createWritable();
+    await writable.write(JSON.stringify(tage, null, 2));
+    await writable.close();
+    if (!silent) { var s = document.getElementById('folderStatus'); if (s) s.textContent = 'Gespeichert: ' + fileName; }
+  } catch(e) { console.warn('Folder save failed', e); }
+}
+
+async function loadFromFolder() {
+  if (!folderHandle) return;
+  try {
+    var latest = null, latestDate = '';
+    for await (var entry of folderHandle.values()) {
+      if (entry.kind === 'file' && entry.name.startsWith('morgenritual_') && entry.name.endsWith('.json')) {
+        var d = entry.name.replace('morgenritual_','').replace('.json','');
+        if (d > latestDate) { latestDate = d; latest = entry; }
+      }
+    }
+    if (!latest) return;
+    var file = await latest.getFile();
+    var text = await file.text();
+    var imported = JSON.parse(text);
+    tage = Object.assign({}, imported, tage);
+    saveTage();
+  } catch(e) { console.warn('Folder load failed', e); }
+}
+
+// Export / Import
+function exportJSON() {
+  var blob = new Blob([JSON.stringify(tage, null, 2)], { type: 'application/json' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'morgenritual_' + todayKey + '.json';
+  a.click();
+}
+
+function importJSON(evt) {
+  var file = evt.target.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var imported = JSON.parse(e.target.result);
+      tage = Object.assign({}, imported, tage);
+      saveTage();
+      alert('Import erfolgreich! ' + Object.keys(imported).length + ' Tage geladen.');
+    } catch(err) { alert('Fehler beim Importieren.'); }
+  };
+  reader.readAsText(file);
+  evt.target.value = '';
+}
+</script>
+</body>
+</html>

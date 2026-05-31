@@ -1,0 +1,280 @@
+{
+  "2026-03-17": {
+    "datum": "2026-03-17",
+    "mentor": "rohn",
+    "stepsTotal": 7,
+    "stepsDone": 2,
+    "completed": false,
+    "antworten": {
+      "q1": "",
+      "q2": "",
+      "q3": ""
+    },
+    "savedAt": "2026-03-17T07:57:47.183Z"
+  },
+  "2026-03-22": {
+    "datum": "2026-03-22",
+    "mentor": "rohn",
+    "stepsTotal": 7,
+    "stepsDone": 1,
+    "completed": false,
+    "antworten": {
+      "q1": "",
+      "q2": "",
+      "q3": ""
+    },
+    "savedAt": "2026-03-22T06:48:19.342Z"
+  },
+  "2026-03-23": {
+    "datum": "2026-03-23",
+    "mentor": "rohn",
+    "stepsTotal": 7,
+    "stepsDone": 1,
+    "completed": false,
+    "antworten": {
+      "q1": "Besser als gestern",
+      "q2": "Ich bin Schauspieler und hyper kreativ",
+      "q3": "Positive Stimmung. Eine Aufnahme für Sir Stephen. Ein Video zum Stand des Tages."
+    },
+    "savedAt": "2026-03-23T07:58:52.623Z"
+  },
+  "2026-03-24": {
+    "datum": "2026-03-24",
+    "mentor": "rohn",
+    "stepsTotal": 7,
+    "stepsDone": 0,
+    "completed": false,
+    "antworten": {
+      "q1": "Besser aber nicht optimal",
+      "q2": "Ich bin Schauspieler und Hyper kreativ",
+      "q3": "Einen Song? Nein einen unterhaltsamen Sketch und eine Whisper Note für Sir Stephen.\n"
+    },
+    "stepNotes": {},
+    "abortedAt": null,
+    "savedAt": "2026-03-24T16:59:03.962Z"
+  },
+  "2026-03-25": {
+    "datum": "2026-03-25",
+    "mentor": "rohn",
+    "stepsTotal": 7,
+    "stepsDone": 0,
+    "completed": false,
+    "antworten": {
+      "q1": "Mittel",
+      "q2": "Ich bin Schauspieler",
+      "q3": "Einen Sketch. Audio oder gefilmt."
+    },
+    "stepNotes": {},
+    "abortedAt": null,
+    "savedAt": "2026-03-25T15:51:15.233Z"
+  },
+  "2026-03-26": {
+    "datum": "2026-03-26",
+    "mentor": "rohn",
+    "stepsTotal": 0,
+    "stepsDone": 0,
+    "completed": false,
+    "antworten": {
+      "q1": "Mittel. Etwas ausgelaugt vom Job für den Kunden. Relativ wenig Energie.",
+      "q2": "Ich bin Schauspieler.",
+      "q3": "Einen Sketch. Eine Sir Stephen Whisper Note."
+    },
+    "savedAt": "2026-03-26T08:13:48.119Z"
+  },
+  "2026-03-27": {
+    "datum": "2026-03-27",
+    "mentor": "rohn",
+    "stepsTotal": 6,
+    "stepsDone": 2,
+    "completed": false,
+    "antworten": {
+      "q1": "Besser als gestern und ehrlich gesagt: Immer besser.",
+      "q2": "Ich bin Schauspieler. Ich kreiere Welten.",
+      "q3": "Nordstern"
+    },
+    "stepNotes": {
+      "1": [
+        "Honey",
+        "Die Sonne",
+        "Emily"
+      ],
+      "2": {
+        "buch": "The 1 Page Marketing Plan",
+        "warum": "Um meinen Geist frisch zu halten. Um auf neue Ideen zu kommen."
+      }
+    },
+    "stepTimes": {
+      "0": {
+        "title": "Stille & Ankommen",
+        "planned": 300,
+        "attempts": [
+          3,
+          3,
+          14,
+          1,
+          33,
+          300,
+          1
+        ],
+        "spent": 1,
+        "successes": 1
+      },
+      "1": {
+        "title": "Dankbarkeit notieren",
+        "planned": 300,
+        "attempts": [
+          1
+        ],
+        "spent": 1
+      },
+      "2": {
+        "title": "Lesen & Lernen",
+        "planned": 720,
+        "attempts": [
+          1
+        ],
+        "spent": 1
+      }
+    },
+    "abortedAt": null,
+    "aborts": [],
+    "savedAt": "2026-03-27T09:13:56.088Z"
+  },
+  "2026-03-28": {
+    "datum": "2026-03-28",
+    "mentor": "rohn",
+    "stepsTotal": 6,
+    "stepsDone": 0,
+    "completed": false,
+    "antworten": {
+      "q1": "Ungefähr wie gestern. Vielleicht sogar etwas besser wegen des Knoblauchs, den ich gegessen habe..",
+      "q2": "Ich bin Schauspieler und hyper kreativ",
+      "q3": "Einen Sketch als Audio aufnehmen. Oder als Video. Oder zumindest einen Sketch schreiben? Sir Stephen.. Nox Hotel. Das Dokument durchlesen. Alles anpassen. Damit es zum Nox Hotel passt. Alles noch mal genau durchgehen für`s Sprechen am Sonntag."
+    },
+    "stepNotes": {},
+    "stepTimes": {
+      "0": {
+        "title": "Stille & Ankommen",
+        "planned": 300,
+        "attempts": [
+          4
+        ],
+        "spent": 4,
+        "successes": 1
+      }
+    },
+    "abortedAt": null,
+    "aborts": [],
+    "savedAt": "2026-03-28T08:43:24.567Z"
+  },
+  "2026-03-29": {
+    "datum": "2026-03-29",
+    "mentor": "rohn",
+    "stepsTotal": 6,
+    "stepsDone": 0,
+    "completed": false,
+    "antworten": {
+      "q1": "Gut. Gestern war ich am Strand mit den Hunden laufen. Tut gut.",
+      "q2": "Ich bin Schauspieler. Ich kreiere Welten.",
+      "q3": "Sir Stephen sprechen. Nox - Das Maskenhotel. Die Ankunft. \nAuch ein Sketch wäre gut. Als Audio oder als Video."
+    },
+    "stepNotes": {},
+    "stepTimes": {},
+    "abortedAt": null,
+    "aborts": [],
+    "savedAt": "2026-03-29T12:43:08.755Z"
+  },
+  "2026-04-08": {
+    "datum": "2026-04-08",
+    "mentor": "rohn",
+    "stepsTotal": 6,
+    "stepsDone": 2,
+    "completed": false,
+    "antworten": {
+      "q1": "Es geht so. Nicht ganz in der Balance.",
+      "q2": "Ich bin Schauspieler.",
+      "q3": "Ein kurzes Video mit mir. Eine Sir Stephen Whisper Note. ",
+      "q4": "Auf der Terrasse. Vielleicht reicht auch schon ein Satz."
+    },
+    "stepNotes": {
+      "1": [
+        "Die Sonne",
+        "Honey",
+        "Meine Fähigkeiten / Kreativität"
+      ],
+      "2": {
+        "buch": "The 1 Page Marketing Plan",
+        "warum": "Um mich weiterzubilden (mache ich viel zu wenig) Um im Flow zu bleiben."
+      }
+    },
+    "stepTimes": {
+      "0": {
+        "title": "Stille & Ankommen",
+        "planned": 300,
+        "attempts": [
+          300
+        ],
+        "successes": 1,
+        "spent": 300
+      },
+      "1": {
+        "title": "Dankbarkeit notieren",
+        "planned": 300,
+        "attempts": [
+          300
+        ],
+        "successes": 1,
+        "spent": 300
+      }
+    },
+    "abortedAt": null,
+    "aborts": [],
+    "savedAt": "2026-04-08T07:06:23.207Z"
+  },
+  "2026-04-09": {
+    "datum": "2026-04-09",
+    "mentor": "rohn",
+    "stepsTotal": 6,
+    "stepsDone": 2,
+    "completed": false,
+    "antworten": {
+      "q1": "Es ist Okay. Es hat geregnet. Ist wieder kälter geworden. Aber mir geht es gut.\nVielleicht sogar sehr gut.",
+      "q2": "Ich bin Schauspieler. Creator. Hyper kreativ.",
+      "q3": "Einen Sketch.. Unter den Teppich kehren? Warum cool nicht mehr cool ist? \nWarum ich barfuss laufe obwohl ich Schuhe anziehen sollte..\nSir Stephen.. Eine Whisper Note.. ?",
+      "q4": "Auf der Terrasse? Ein Bild mit mir? Ich bin mir gerade nicht sicher. Aber ja, als Schauspieler sollte ich mich zeigen.. Was ist, wenn ich einen Podcast starte.. \nNur für mich? About Nothing.. Every day a joke. Oder: Gedanken von der Terrasse..\nIn welche Richtung gehe ich? Drehen? Oder erstmal Podcast..? Nur für mich?"
+    },
+    "stepNotes": {
+      "1": [
+        "Die Sonne",
+        "Honey | die Hunde",
+        "Die vielen Möglichkeiten, die ich habe"
+      ],
+      "2": {
+        "buch": "The 1 Page Marketing Plan",
+        "warum": "Um mich weiterzubilden. Ideen zu sammeln. Im Flow zu blieben."
+      }
+    },
+    "stepTimes": {
+      "0": {
+        "title": "Stille & Ankommen",
+        "planned": 300,
+        "attempts": [
+          300
+        ],
+        "successes": 1,
+        "spent": 300
+      },
+      "1": {
+        "title": "Dankbarkeit notieren",
+        "planned": 300,
+        "attempts": [
+          6
+        ],
+        "spent": 6
+      }
+    },
+    "abortedAt": null,
+    "aborts": [],
+    "savedAt": "2026-04-09T07:24:16.434Z"
+  }
+}

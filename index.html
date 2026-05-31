@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Morgenritual</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f9f8f5; color: #1a1a18; min-height: 100vh; padding: 2rem 1rem; }
+  .container { max-width: 680px; margin: 0 auto; }
+  .top-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; }
+  .greeting { font-size: 26px; font-weight: 500; color: #1a1a18; margin-bottom: 4px; }
+  .subtitle { font-size: 15px; color: #6b6b65; }
+  .top-btns { display: flex; gap: 8px; flex-shrink: 0; margin-top: 4px; }
+  .icon-btn { padding: 7px 13px; border-radius: 8px; border: 0.5px solid #b4b2a9; background: transparent; color: #6b6b65; font-size: 13px; cursor: pointer; font-family: inherit; white-space: nowrap; }
+  .icon-btn:hover { background: #f1efe8; }
+  .question-card { background: #f1efe8; border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 1rem; }
+  .q-label { font-size: 12px; color: #9b9b93; margin-bottom: 4px; }
+  .q-text { font-size: 16px; font-weight: 500; color: #1a1a18; }
+  .q-input { width: 100%; margin-top: 10px; font-size: 15px; padding: 10px 12px; border-radius: 8px; border: 0.5px solid #ccccc4; background: #fff; color: #1a1a18; resize: none; font-family: inherit; }
+  .q-input:focus { outline: none; border-color: #888780; }
+  .mentor-section { margin: 2rem 0 1rem; }
+  .mentor-label { font-size: 13px; color: #6b6b65; margin-bottom: 10px; }
+  .mentor-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .mentor-card { background: #fff; border: 0.5px solid #d3d1c7; border-radius: 12px; padding: 1rem; cursor: pointer; transition: border-color 0.15s; text-align: center; }
+  .mentor-card:hover { border-color: #888780; }
+  .mentor-card.selected { border: 2px solid #185fa5; background: #e6f1fb; }
+  .mentor-name { font-size: 14px; font-weight: 500; color: #1a1a18; margin-bottom: 4px; }
+  .mentor-tag { font-size: 11px; color: #6b6b65; }
+  .mentor-card.selected .mentor-name, .mentor-card.selected .mentor-tag { color: #185fa5; }
+  .step-area { margin-top: 1.5rem; }
+  .progress-bar { height: 4px; background: #f1efe8; border-radius: 2px; margin-bottom: 2rem; }
+  .progress-fill { height: 4px; background: #378add; border-radius: 2px; transition: width 0.4s; }
+  .step-card { background: #fff; border: 0.5px solid #d3d1c7; border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 10px; display: flex; gap: 14px; align-items: flex-start; opacity: 0.4; transition: opacity 0.3s; }
+  .step-card.active { opacity: 1; border-color: #888780; }
+  .step-card.done { opacity: 0.6; }
+  .step-num { width: 28px; height: 28px; border-radius: 50%; background: #f1efe8; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; color: #6b6b65; flex-shrink: 0; margin-top: 2px; }
+  .step-card.active .step-num { background: #e6f1fb; color: #185fa5; }
+  .step-card.done .step-num { background: #eaf3de; color: #3b6d11; }
+  .step-title { font-size: 14px; font-weight: 500; color: #1a1a18; margin-bottom: 3px; }
+  .step-desc { font-size: 13px; color: #6b6b65; line-height: 1.5; margin-top: 4px; }
+  .step-source { font-size: 11px; color: #9b9b93; margin-top: 4px; }
+  /* Timer */
+  .timer-block { margin-top: 14px; background: #f9f8f5; border-radius: 10px; padding: 12px 14px; display: flex; align-items: center; gap: 12px; }
+  .timer-display { font-size: 22px; font-weight: 500; color: #185fa5; min-width: 56px; font-variant-numeric: tabular-nums; }
+  .timer-display.done { color: #3b6d11; }
+  .timer-btns { display: flex; gap: 6px; }
+  .tbtn { padding: 5px 12px; border-radius: 6px; border: 0.5px solid #b4b2a9; background: transparent; color: #1a1a18; font-size: 12px; cursor: pointer; font-family: inherit; }
+  .tbtn:hover { background: #f1efe8; }
+  .tbtn.start { background: #e6f1fb; color: #185fa5; border-color: #378add; }
+  .tbtn.start:hover { background: #b5d4f4; }
+  .timer-progress { flex: 1; height: 4px; background: #e0dfd7; border-radius: 2px; overflow: hidden; }
+  .timer-progress-fill { height: 100%; background: #378add; border-radius: 2px; transition: width 0.5s linear; }
+  .btn-row { display: flex; gap: 10px; margin-top: 1.5rem; }
+  .btn { padding: 10px 20px; border-radius: 8px; border: 0.5px solid #b4b2a9; background: transparent; color: #1a1a18; font-size: 14px; cursor: pointer; font-family: inherit; }
+  .btn:hover { background: #f1efe8; }
+  .btn-primary { background: #e6f1fb; color: #185fa5; border-color: #378add; }
+  .btn-primary:hover { background: #b5d4f4; }
+  .complete-msg { text-align: center; padding: 2rem; color: #6b6b65; font-size: 15px; line-height: 1.7; }
+  .complete-msg .big { font-size: 28px; margin-bottom: 8px; }
+  .section-divider { border: none; border-top: 0.5px solid #d3d1c7; margin: 2rem 0; }
+  /* Verlauf */
+  .verlauf-view { display: none; }
+  .verlauf-view.active { display: block; }
+  .ritual-view { display: block; }
+  .ritual-view.hidden { display: none; }
+  .verlauf-header { font-size: 20px; font-weight: 500; margin-bottom: 4px; }
+  .verlauf-sub { font-size: 14px; color: #6b6b65; margin-bottom: 1.5rem; }
+  .day-card { background: #fff; border: 0.5px solid #d3d1c7; border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 10px; cursor: pointer; }
+  .day-card:hover { border-color: #888780; }
+  .day-top { display: flex; justify-content: space-between; align-items: center; }
+  .day-date { font-size: 14px; font-weight: 500; color: #1a1a18; }
+  .day-mentor { font-size: 12px; color: #6b6b65; }
+  .day-steps { font-size: 12px; color: #9b9b93; margin-top: 4px; }
+  .day-detail { margin-top: 12px; display: none; border-top: 0.5px solid #e8e7e0; padding-top: 12px; }
+  .day-detail.open { display: block; }
+  .detail-q { font-size: 12px; color: #9b9b93; margin-bottom: 2px; margin-top: 10px; }
+  .detail-a { font-size: 13px; color: #1a1a18; }
+  .empty-verlauf { text-align: center; padding: 3rem 1rem; color: #9b9b93; font-size: 14px; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 11px; background: #eaf3de; color: #3b6d11; }
+  .badge.partial { background: #fef3e2; color: #a06000; }
+  /* Import hidden input */
+  #importInput { display: none; }
+  .save-hint { font-size: 12px; color: #9b9b93; margin-top: 6px; text-align: right; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="top-row">
+    <div>
+      <div class="greeting" id="greetingText">Guten Morgen</div>
+      <div class="subtitle" id="subtitleText">Dein tägliches Ritual — kombiniert aus drei Meistern</div>
+    </div>
+    <div class="top-btns">
+      <button class="icon-btn" onclick="showVerlauf()">📅 Verlauf</button>
+      <button class="icon-btn" onclick="exportJSON()">💾 Backup</button>
+      <button class="icon-btn" onclick="document.getElementById('importInput').click()">📂 Import</button>
+      <input type="file" id="importInput" accept=".json" onchange="importJSON(event)">
+    </div>
+  </div>
+
+  <!-- Ritual View -->
+  <div class="ritual-view" id="ritualView">
+    <div class="question-card">
+      <div class="q-label">Frage 1</div>
+      <div class="q-text">Wie geht es dir heute?</div>
+      <textarea class="q-input" id="q1" rows="2" placeholder="Schreib kurz, wie du dich fühlst..."></textarea>
+    </div>
+    <div class="question-card">
+      <div class="q-label">Frage 2</div>
+      <div class="q-text">Was ist dein Nordstern?</div>
+      <textarea class="q-input" id="q2" rows="2" placeholder="Dein tiefster Antrieb, deine Vision..."></textarea>
+    </div>
+    <div class="question-card">
+      <div class="q-label">Frage 3</div>
+      <div class="q-text">Was möchtest du heute kreieren, das deinem Nordstern entspricht?</div>
+      <textarea class="q-input" id="q3" rows="2" placeholder="Eine konkrete Absicht für heute..."></textarea>
+    </div>
+
+    <hr class="section-divider">
+
+    <div class="mentor-section">
+      <div class="mentor-label">Wähle deinen ersten Schritt — wessen Energie führt dich heute?</div>
+      <div class="mentor-grid">
+        <div class="mentor-card" onclick="selectMentor('rohn', this)">
+          <div class="mentor-name">Jim Rohn</div>
+          <div class="mentor-tag">Lesen & Weisheit</div>
+        </div>
+        <div class="mentor-card" onclick="selectMentor('robbins', this)">
+          <div class="mentor-name">Tony Robbins</div>
+          <div class="mentor-tag">Energie & Priming</div>
+        </div>
+        <div class="mentor-card" onclick="selectMentor('graziosi', this)">
+          <div class="mentor-name">Dean Graziosi</div>
+          <div class="mentor-tag">Mindset & Intention</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-area" id="stepArea" style="display:none;">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      <div id="stepsContainer"></div>
+      <div class="btn-row">
+        <button class="btn" onclick="prevStep()">Zurück</button>
+        <button class="btn btn-primary" id="nextBtn" onclick="nextStep()">Schritt abgeschlossen</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Verlauf View -->
+  <div class="verlauf-view" id="verlaufView">
+    <div class="verlauf-header">Dein Verlauf</div>
+    <div class="verlauf-sub" id="verlaufSub"></div>
+    <div id="verlaufList"></div>
+    <button class="btn" style="margin-top:1rem;" onclick="showRitual()">← Zurück zum Ritual</button>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'morgenritual_tage';
+
+const rituals = {
+  rohn: [
+    { title: "Stille & Ankommen", desc: "5 Minuten in vollständiger Stille sitzen. Kein Handy, keine Gedanken an den Tag. Nur ankommen.", source: "Jim Rohn — Stille ist der Anfang aller Weisheit", mins: 5 },
+    { title: "Dankbarkeit notieren", desc: "Schreibe 3 Dinge auf, für die du heute dankbar bist. Konkret und ehrlich.", source: "Jim Rohn — Tagebuch als strategisches Werkzeug", mins: 5 },
+    { title: "Lesen & Lernen", desc: "10–15 Minuten in einem Buch lesen. Philosophie, Biografie oder Strategie.", source: "Jim Rohn — Miss a meal, but not your reading", mins: 12 },
+    { title: "Kaltes Wasser", desc: "Kalt duschen oder Gesicht mit kaltem Wasser waschen. Körper aktivieren.", source: "Tony Robbins — Motion creates emotion", mins: 3 },
+    { title: "Priming-Atmung", desc: "30 kraftvolle Atemzüge. Arme hoch bei Einatmen, runter bei Ausatmen. Energie aufbauen.", source: "Tony Robbins — Priming ritual", mins: 5 },
+    { title: "Absicht setzen", desc: "Notiere deine eine Hauptabsicht für heute. Was ist der wichtigste Schritt zu deinem Nordstern?", source: "Dean Graziosi — Intention vor Aktion", mins: 5 },
+    { title: "Handy-freie Zone", desc: "Die ersten 60 Minuten gehören dir. Kein Social Media, keine Nachrichten, keine E-Mails.", source: "Graziosi & Robbins — Innerer Zustand zuerst", mins: 0 }
+  ],
+  robbins: [
+    { title: "Kaltes Wasser", desc: "Direkt nach dem Aufwachen: kalt duschen oder ins Eisbad. Sofortiger Energie-Reset.", source: "Tony Robbins — Tägliches Ritual", mins: 5 },
+    { title: "Priming-Atmung", desc: "30 kraftvolle Atemzüge (Kapalbhati). Arme bei Einatmen hoch, bei Ausatmen runter.", source: "Tony Robbins — Priming", mins: 5 },
+    { title: "Dankbarkeits-Visualisierung", desc: "3 Momente tief visualisieren, für die du dankbar bist. Fühle es wirklich.", source: "Tony Robbins — Priming-Meditation", mins: 5 },
+    { title: "Stille & Ankommen", desc: "5 Minuten ruhig sitzen. Den aufgebauten Zustand festigen.", source: "Jim Rohn — Stille als Fundament", mins: 5 },
+    { title: "Absicht setzen", desc: "Was ist deine eine Hauptabsicht für heute? Schreib sie auf.", source: "Dean Graziosi — Tägliche Intention", mins: 5 },
+    { title: "Lesen", desc: "10 Minuten lesen. Auch an einem Hochenergie-Tag braucht der Geist Nahrung.", source: "Jim Rohn — Tägliches Lernen", mins: 10 },
+    { title: "Handy-freie Zone", desc: "Erst nach deinem Ritual: Nachrichten, E-Mails, Social Media. Nicht vorher.", source: "Alle drei — Innerer Zustand schützen", mins: 0 }
+  ],
+  graziosi: [
+    { title: "Stille & Ankommen", desc: "5 Minuten bevor du das Handy anschaust. Einfach da sein.", source: "Dean Graziosi — Bewusster Start", mins: 5 },
+    { title: "Absicht setzen", desc: "Was will ich heute erreichen, und warum ist es mir wichtig? Aufschreiben.", source: "Dean Graziosi — Daily Mindset Reset", mins: 5 },
+    { title: "Dankbarkeit notieren", desc: "3 Dinge, für die du dankbar bist. Konkret und heute relevant.", source: "Graziosi & Rohn — Dankbarkeit als Anker", mins: 5 },
+    { title: "Lesen & Lernen", desc: "10–15 Minuten lesen. Wissen als tägliche Investition in dich selbst.", source: "Jim Rohn — Bildung als Selbstrespekt", mins: 12 },
+    { title: "Bewegung", desc: "10–20 Minuten Bewegung. Sport, Spaziergang oder Atemübungen.", source: "Dean Graziosi & Tony Robbins — Körper aktivieren", mins: 15 },
+    { title: "Priming-Atmung", desc: "Kurze Atemsequenz: 10 kraftvolle Züge, dann 1 Minute ruhig atmen.", source: "Tony Robbins — Priming, vereinfacht", mins: 3 },
+    { title: "Handy-freie Zone", desc: "Das Ritual ist abgeschlossen. Jetzt erst: Außenwelt rein lassen.", source: "Alle drei — Schutz des Morgens", mins: 0 }
+  ]
+};
+
+const mentorNames = { rohn: 'Jim Rohn', robbins: 'Tony Robbins', graziosi: 'Dean Graziosi' };
+
+// State
+let tage = loadTage();
+let selectedMentor = null;
+let currentStep = 0;
+let steps = [];
+let timerInterval = null;
+let timerRemaining = 0;
+let timerTotal = 0;
+let timerRunning = false;
+let todayKey = getTodayKey();
+
+function getTodayKey() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function loadTage() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; }
+}
+
+function saveTage() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(tage));
+}
+
+function todayFormatted() {
+  return new Date().toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+// Greeting
+document.getElementById('greetingText').textContent = 'Guten Morgen';
+document.getElementById('subtitleText').textContent = todayFormatted();
+
+// Mentor select
+function selectMentor(key, el) {
+  document.querySelectorAll('.mentor-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedMentor = key;
+  steps = rituals[key];
+  currentStep = 0;
+  clearTimer();
+  renderSteps();
+  document.getElementById('stepArea').style.display = 'block';
+  document.getElementById('stepArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function renderSteps() {
+  const container = document.getElementById('stepsContainer');
+  container.innerHTML = '';
+  const pct = Math.round((currentStep / steps.length) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+
+  if (currentStep >= steps.length) {
+    container.innerHTML = '<div class="complete-msg"><div class="big">🌅</div>Dein Morgenritual ist abgeschlossen.<br>Du bist bereit für deinen Nordstern.</div>';
+    document.getElementById('progressFill').style.width = '100%';
+    document.getElementById('nextBtn').textContent = 'Schritt abgeschlossen';
+    saveToday(true);
+    return;
+  }
+
+  document.getElementById('nextBtn').textContent = 'Schritt abgeschlossen';
+  saveToday(false);
+
+  steps.forEach((s, i) => {
+    const div = document.createElement('div');
+    div.className = 'step-card' + (i === currentStep ? ' active' : i < currentStep ? ' done' : '');
+    let inner = `<div class="step-num">${i < currentStep ? '✓' : i + 1}</div><div style="flex:1;"><div class="step-title">${s.title}</div>`;
+    if (i === currentStep) {
+      inner += `<div class="step-desc">${s.desc}</div><div class="step-source">${s.source}</div>`;
+      if (s.mins > 0) inner += buildTimerHTML(i, s.mins);
+    }
+    inner += '</div>';
+    div.innerHTML = inner;
+    container.appendChild(div);
+  });
+
+  // Start timer auto if mins > 0
+  const s = steps[currentStep];
+  if (s.mins > 0) {
+    timerRemaining = s.mins * 60;
+    timerTotal = timerRemaining;
+    timerRunning = false;
+    updateTimerDisplay();
+  }
+}
+
+function buildTimerHTML(idx, mins) {
+  return `<div class="timer-block">
+    <div class="timer-display" id="timerDisplay">${fmtTime(mins * 60)}</div>
+    <div class="timer-progress"><div class="timer-progress-fill" id="timerBar" style="width:100%"></div></div>
+    <div class="timer-btns">
+      <button class="tbtn start" id="timerStartBtn" onclick="toggleTimer()">▶ Start</button>
+      <button class="tbtn" onclick="resetTimer(${mins})">↺</button>
+    </div>
+  </div>`;
+}
+
+function fmtTime(secs) {
+  const m = Math.floor(secs / 60), s = secs % 60;
+  return String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+}
+
+function toggleTimer() {
+  if (timerRunning) { pauseTimer(); } else { startTimer(); }
+}
+
+function startTimer() {
+  if (timerRemaining <= 0) return;
+  timerRunning = true;
+  const btn = document.getElementById('timerStartBtn');
+  if (btn) btn.textContent = '⏸ Pause';
+  timerInterval = setInterval(() => {
+    timerRemaining--;
+    updateTimerDisplay();
+    if (timerRemaining <= 0) {
+      clearInterval(timerInterval);
+      timerRunning = false;
+      const d = document.getElementById('timerDisplay');
+      if (d) { d.textContent = '✓ Fertig'; d.classList.add('done'); }
+      const b = document.getElementById('timerStartBtn');
+      if (b) { b.textContent = '✓ Fertig'; b.disabled = true; }
+    }
+  }, 1000);
+}
+
+function pauseTimer() {
+  clearInterval(timerInterval);
+  timerRunning = false;
+  const btn = document.getElementById('timerStartBtn');
+  if (btn) btn.textContent = '▶ Start';
+}
+
+function resetTimer(mins) {
+  clearInterval(timerInterval);
+  timerRunning = false;
+  timerRemaining = mins * 60;
+  timerTotal = timerRemaining;
+  const d = document.getElementById('timerDisplay');
+  if (d) { d.textContent = fmtTime(timerRemaining); d.classList.remove('done'); }
+  const b = document.getElementById('timerStartBtn');
+  if (b) { b.textContent = '▶ Start'; b.disabled = false; }
+  updateTimerDisplay();
+}
+
+function clearTimer() {
+  clearInterval(timerInterval);
+  timerRunning = false;
+  timerRemaining = 0;
+  timerTotal = 0;
+}
+
+function updateTimerDisplay() {
+  const d = document.getElementById('timerDisplay');
+  const bar = document.getElementById('timerBar');
+  if (d) d.textContent = fmtTime(timerRemaining);
+  if (bar && timerTotal > 0) bar.style.width = Math.round((timerRemaining / timerTotal) * 100) + '%';
+}
+
+function nextStep() {
+  if (currentStep < steps.length) {
+    clearTimer();
+    currentStep++;
+    renderSteps();
+  }
+}
+
+function prevStep() {
+  if (currentStep > 0) {
+    clearTimer();
+    currentStep--;
+    renderSteps();
+  }
+}
+
+// Save today's data
+function saveToday(completed) {
+  const key = todayKey;
+  tage[key] = {
+    datum: key,
+    mentor: selectedMentor,
+    stepsTotal: steps.length,
+    stepsDone: currentStep,
+    completed: completed,
+    antworten: {
+      q1: document.getElementById('q1').value,
+      q2: document.getElementById('q2').value,
+      q3: document.getElementById('q3').value,
+    },
+    savedAt: new Date().toISOString()
+  };
+  saveTage();
+}
+
+// Auto-save on input change
+['q1','q2','q3'].forEach(id => {
+  document.getElementById(id).addEventListener('input', () => {
+    if (selectedMentor) saveToday(currentStep >= steps.length);
+  });
+});
+
+// Verlauf
+function showVerlauf() {
+  document.getElementById('ritualView').classList.add('hidden');
+  document.getElementById('verlaufView').classList.add('active');
+  renderVerlauf();
+}
+
+function showRitual() {
+  document.getElementById('ritualView').classList.remove('hidden');
+  document.getElementById('verlaufView').classList.remove('active');
+}
+
+function renderVerlauf() {
+  const list = document.getElementById('verlaufList');
+  const keys = Object.keys(tage).sort((a,b) => b.localeCompare(a));
+  document.getElementById('verlaufSub').textContent = keys.length + ' ' + (keys.length === 1 ? 'Tag gespeichert' : 'Tage gespeichert');
+
+  if (!keys.length) {
+    list.innerHTML = '<div class="empty-verlauf">Noch keine Tage gespeichert.<br>Schließe dein erstes Ritual ab!</div>';
+    return;
+  }
+
+  list.innerHTML = keys.map(k => {
+    const t = tage[k];
+    const d = new Date(t.datum).toLocaleDateString('de-DE', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' });
+    const badge = t.completed
+      ? '<span class="badge">✓ Abgeschlossen</span>'
+      : `<span class="badge partial">${t.stepsDone}/${t.stepsTotal} Schritte</span>`;
+    const mn = mentorNames[t.mentor] || t.mentor;
+    const a = t.antworten || {};
+    return `<div class="day-card" onclick="toggleDay('${k}')">
+      <div class="day-top"><div class="day-date">${d}</div>${badge}</div>
+      <div class="day-steps">${mn}</div>
+      <div class="day-detail" id="detail-${k}">
+        ${a.q1 ? `<div class="detail-q">Wie geht es dir heute?</div><div class="detail-a">${esc(a.q1)}</div>` : ''}
+        ${a.q2 ? `<div class="detail-q">Nordstern</div><div class="detail-a">${esc(a.q2)}</div>` : ''}
+        ${a.q3 ? `<div class="detail-q">Heutige Intention</div><div class="detail-a">${esc(a.q3)}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleDay(k) {
+  const el = document.getElementById('detail-' + k);
+  if (el) el.classList.toggle('open');
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Export / Import
+function exportJSON() {
+  const blob = new Blob([JSON.stringify(tage, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'morgenritual_daten.json';
+  a.click();
+}
+
+function importJSON(evt) {
+  const file = evt.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const imported = JSON.parse(e.target.result);
+      tage = { ...imported, ...tage }; // local takes priority for today
+      saveTage();
+      alert('Import erfolgreich! ' + Object.keys(imported).length + ' Tage geladen.');
+    } catch { alert('Fehler beim Importieren. Bitte prüfe die Datei.'); }
+  };
+  reader.readAsText(file);
+  evt.target.value = '';
+}
+</script>
+</body>
+</html>

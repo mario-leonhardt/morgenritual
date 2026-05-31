@@ -1,0 +1,182 @@
+{
+  "2026-03-17": {
+    "datum": "2026-03-17",
+    "mentor": "rohn",
+    "stepsTotal": 7,
+    "stepsDone": 2,
+    "completed": false,
+    "antworten": {
+      "q1": "",
+      "q2": "",
+      "q3": ""
+    },
+    "savedAt": "2026-03-17T07:57:47.183Z"
+  },
+  "2026-03-22": {
+    "datum": "2026-03-22",
+    "mentor": "rohn",
+    "stepsTotal": 7,
+    "stepsDone": 1,
+    "completed": false,
+    "antworten": {
+      "q1": "",
+      "q2": "",
+      "q3": ""
+    },
+    "savedAt": "2026-03-22T06:48:19.342Z"
+  },
+  "2026-03-23": {
+    "datum": "2026-03-23",
+    "mentor": "rohn",
+    "stepsTotal": 7,
+    "stepsDone": 1,
+    "completed": false,
+    "antworten": {
+      "q1": "Besser als gestern",
+      "q2": "Ich bin Schauspieler und hyper kreativ",
+      "q3": "Positive Stimmung. Eine Aufnahme für Sir Stephen. Ein Video zum Stand des Tages."
+    },
+    "savedAt": "2026-03-23T07:58:52.623Z"
+  },
+  "2026-03-24": {
+    "datum": "2026-03-24",
+    "mentor": "rohn",
+    "stepsTotal": 7,
+    "stepsDone": 0,
+    "completed": false,
+    "antworten": {
+      "q1": "Besser aber nicht optimal",
+      "q2": "Ich bin Schauspieler und Hyper kreativ",
+      "q3": "Einen Song? Nein einen unterhaltsamen Sketch und eine Whisper Note für Sir Stephen.\n"
+    },
+    "stepNotes": {},
+    "abortedAt": null,
+    "savedAt": "2026-03-24T16:59:03.962Z"
+  },
+  "2026-03-25": {
+    "datum": "2026-03-25",
+    "mentor": null,
+    "stepsTotal": 0,
+    "stepsDone": 0,
+    "completed": false,
+    "antworten": {
+      "q1": "Schlechter als gestern. Vielleicht weil ich Pizza gegessen habe.",
+      "q2": "Ich bin Schauspieler. ",
+      "q3": "Einen Sketch und eine Aufnahme für Sir Stephen"
+    },
+    "savedAt": "2026-03-25T07:19:07.143Z"
+  },
+  "2026-05-03": {
+    "datum": "2026-05-03",
+    "mentor": "rohn",
+    "stepsTotal": 6,
+    "stepsDone": 0,
+    "completed": false,
+    "antworten": {
+      "q1": "Es geht mir heute eigentlich sehr gut. Aber ich mache mir schon Gedanken. \nÜber Vieles. Speziell über meine Effektivität im Business. Ich habe 1.000 Ideen und ständig etwas Neues. Kreativ bin ich. Ja. Aber das kann auch eine Bürde sein. ",
+      "q2": "Ich bin Schauspieler",
+      "q3": "Ein Foto. Damit ich mich zumindest auf Linked In zeigen kann. Nicht als Schauspieler aber als Person. Ich tendiere dazu KI Bilder zu erstellen, damit ich nicht auf die Terrasse gehe. Das ist eigenartig.",
+      "q4": "Ich denke ich werde heute auf jeden Fall weiter für Sir Stephen schneiden. Episode 1 muss fertig werden. Und ich sollte dringend über Episode 2 nachdenken. \nWas kann dort inhaltlich passieren?"
+    },
+    "stepNotes": {},
+    "stepTimes": {},
+    "abortedAt": null,
+    "aborts": [],
+    "savedAt": "2026-05-03T07:19:39.700Z"
+  },
+  "2026-05-04": {
+    "datum": "2026-05-04",
+    "mentor": "rohn",
+    "stepsTotal": 6,
+    "stepsDone": 0,
+    "completed": false,
+    "antworten": {
+      "q1": "Es geht mir heute mittel. Ich weiss dass ich loslegen muss aber meine Strategien / Aktivitäten haben bisher nichts gebracht.. Was wenn ich einen neuen Kunden habe?\nEs ist wieder das Gleiche... \nIch möchte etwas ANDERES machen und ich kann sehr viel Geld verdienen wenn ich das endlich erkenne und richtig umsetze..",
+      "q2": "Ich bin Schauspieler. Ich bin Creator.",
+      "q3": "Ich möchte heute an Sir Stephen weiter schneiden. Endlich das Projekt zu Ende bringen.\n",
+      "q4": "Ich zeige mich durch Sir Stephen. Ich zeige einen Gedanken auf Linked In.\n"
+    },
+    "stepNotes": {},
+    "stepTimes": {
+      "0": {
+        "title": "Stille & Ankommen",
+        "planned": 300,
+        "attempts": [],
+        "successes": 1
+      }
+    },
+    "abortedAt": null,
+    "aborts": [],
+    "savedAt": "2026-05-04T07:53:13.131Z"
+  },
+  "2026-05-08": {
+    "datum": "2026-05-08",
+    "mentor": "rohn",
+    "stepsTotal": 6,
+    "stepsDone": 1,
+    "completed": false,
+    "antworten": {
+      "q1": "Heute geht es mir mittel. Eigentlich sehr gut.\nMir fehlt etwas der Fokus. Keine Einnahmen aktuell. \nSir Stephen sollte mehr im Mittelpunkt stehen, ich sehe hier viel Potential.",
+      "q2": "Ich bin Schauspieler. Creator. Storyteller.",
+      "q3": "Ich werde heute weiter für Sir Stephen schneiden. Die Seite, die ich als ersten Raum (zum Anhören) erstellt habe passt sehr gut in das Maskenhotel Konzept. Ich denke alles was gestern mit Chat GPT erarbeitet wurde passt sehr gut.",
+      "q4": "Ich werde heute lange mit den Hunden laufen. Und weiter schneiden. Ich sollte auch an der ersten Folge zum Verkauf arbeiten. Spanking? Fesselspiele? "
+    },
+    "stepNotes": {
+      "1": [
+        "Honey",
+        "Mein Leben",
+        "Die Hunde"
+      ]
+    },
+    "stepTimes": {
+      "0": {
+        "title": "Stille & Ankommen",
+        "planned": 300,
+        "attempts": [
+          300
+        ],
+        "successes": 1,
+        "spent": 300
+      }
+    },
+    "abortedAt": null,
+    "aborts": [],
+    "savedAt": "2026-05-08T08:12:34.845Z"
+  },
+  "2026-05-11": {
+    "datum": "2026-05-11",
+    "mentor": "rohn",
+    "stepsTotal": 6,
+    "stepsDone": 0,
+    "completed": false,
+    "antworten": {
+      "q1": "Es geht mir heute nicht allzu gut. Ich denke im Laufe des Tages wird es sich bessern.\nEigentlich ist heute ein guter Tag. Ein sehr guter Tag.",
+      "q2": "Ich bin Schauspieler. Ich bin Creator.",
+      "q3": "Ich möchte die nächste Folge für Sir Stephen schreiben. Das Maskenhotel. \nSpanking ",
+      "q4": "Ich möchte heute anfangen die erste Folge zum Kaufen zu schreiben. Dafür brauche ich ein Grundkonzept."
+    },
+    "stepNotes": {},
+    "stepTimes": {},
+    "abortedAt": null,
+    "aborts": [],
+    "savedAt": "2026-05-11T07:49:21.160Z"
+  },
+  "2026-05-12": {
+    "datum": "2026-05-12",
+    "mentor": "rohn",
+    "stepsTotal": 6,
+    "stepsDone": 0,
+    "completed": false,
+    "antworten": {
+      "q1": "Es geht mir gut. Aber ich sollte wieder mehr in den Flow kommen.\nMehr für Sir Stephen schreiben.",
+      "q2": "Ich bin Schauspieler und Creator.",
+      "q3": "Ich möchte die nächste Folge für Sir Stephen schreiben. Ich sollte mir heute überlegen,\nwie sie heisst. Und was die Handlung betrifft sollte ich mir überlegen wie es abläuft. \nWo ist sie in der nächsten Folge? Ich sollte mir auch die erste Folge noch einmal anhören und schauen ob es einen Doppler gab.",
+      "q4": "Eine Whisper Note für Sir Stephen kann Sinn machen."
+    },
+    "stepNotes": {},
+    "stepTimes": {},
+    "abortedAt": null,
+    "aborts": [],
+    "savedAt": "2026-05-12T06:37:23.699Z"
+  }
+}
