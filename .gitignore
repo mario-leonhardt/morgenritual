@@ -1,0 +1,6 @@
+Backups Morgenritual/
+*.json
+*.pdf
+morgenritual*.html
+morgenritual (*.html
+.DS_Store
