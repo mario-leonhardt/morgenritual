@@ -106,10 +106,10 @@
   #importInput { display: none; }
   .writing-wrap { position: relative; display: flex; flex-direction: column; }
   .writing-textarea { resize: none; border-radius: 8px 8px 0 0 !important; border-bottom: none !important; }
-  .resize-handle { 
-    width: 100%; height: 24px; 
+  .resize-handle {
+    width: 100%; height: 24px;
     display: flex; align-items: center; justify-content: center;
-    cursor: ns-resize; 
+    cursor: ns-resize;
     background: #f1efe8;
     border: 0.5px solid #ccccc4;
     border-top: none;
@@ -127,8 +127,11 @@
   }
   .resize-handle:hover { background: #e8e6de; }
   .resize-handle:hover::after { background: #6b6b65; }
-
+  /* Selbstführung cards */
+  .sf-card { background: #f1efe8; border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 1rem; border-left: 3px solid #378add; }
+  .sf-label { font-size: 12px; color: #185fa5; margin-bottom: 4px; font-weight: 500; }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 <div class="container">
@@ -146,6 +149,7 @@
       <button class="icon-btn" onclick="showView('einstellungen')">💾 Speichern & Backup</button>
       <input type="file" id="importInput" accept=".json" onchange="importJSON(event)">
       <div id="folderIndicator" style="display:none;font-size:12px;color:#3b6d11;background:#eaf3de;padding:4px 10px;border-radius:6px;align-items:center;gap:4px;">✓ <span id="folderName"></span></div>
+      <div id="syncStatus" style="font-size:12px;color:#378add;min-width:90px;text-align:right;"></div>
     </div>
   </div>
 
@@ -189,14 +193,33 @@
       </div>
     </div>
 
-    <div class="question-card" style="background:#e6f1fb;border:0.5px solid #378add;">
-      <div class="q-label" style="color:#378add;">Frage 6 — Führung</div>
-      <div class="q-text" style="color:#0c447c;font-size:18px;letter-spacing:-0.01em;">Bist du heute eine Führungskraft?</div>
-      <div style="font-size:12px;color:#185fa5;margin-top:4px;margin-bottom:8px;">Führst du dich selbst — oder lässt du dich treiben?</div>
+    <!-- Selbstführungs-Block -->
+    <div class="sf-card">
+      <div class="sf-label">Selbstführung · Denken lenken</div>
+      <div class="q-text">Welcher Satz trägt mich heute?</div>
+      <textarea class="q-input" id="q6" rows="2" placeholder="Ein innerer Anker — dein eigener Satz, nicht von außen..."></textarea>
+    </div>
+    <div class="sf-card">
+      <div class="sf-label">Selbstführung · Energie planen</div>
+      <div class="q-text">Was freut mich heute?</div>
+      <textarea class="q-input" id="q7" rows="2" placeholder="Ein Moment, eine Aufgabe, ein Mensch — der mir Energie gibt..."></textarea>
+    </div>
+    <div class="sf-card">
+      <div class="sf-label">Selbstführung · Selbst belohnen</div>
+      <div class="q-text">Was ist heute anstrengend — und was tue ich danach?</div>
+      <textarea class="q-input" id="q8" rows="2" placeholder="z. B. «Steuern erledigen → danach Spaziergang im Park»..."></textarea>
+    </div>
+
+    <!-- Was wünschst du dir? — fortlaufend (kein tägliches Reset) -->
+    <div class="question-card" style="background:#fdf6e9;border:0.5px solid #c9a84c;margin-top:0.5rem;">
+      <div class="q-label" style="color:#9b7a1a;">Wunsch — fortlaufend</div>
+      <div class="q-text" style="color:#6b4d00;">Was wünschst du dir?</div>
+      <div style="font-size:12px;color:#9b7a1a;margin-top:4px;margin-bottom:8px;">Sei so spezifisch wie möglich. Je konkreter dein Wunsch, desto klarer dein Weg.</div>
       <div class="writing-wrap">
-        <textarea class="q-input writing-textarea" id="q6" rows="2" placeholder="Ja. Weil... / Noch nicht. Heute ändere ich..." style="background:#fff;border-color:#378add;color:#1a1a18;font-size:14px;line-height:1.7;border-radius:8px 8px 0 0;border-bottom:none;"></textarea>
-        <div class="resize-handle" onmousedown="startResize(event,'q6')"></div>
+        <textarea class="q-input writing-textarea" id="qw" rows="3" placeholder="Ich wünsche mir konkret..." style="background:#fff;border-color:#c9a84c;color:#1a1a18;font-size:14px;line-height:1.7;"></textarea>
+        <div class="resize-handle" onmousedown="startResize(event,'qw')" style="border-color:#c9a84c;background:#fdf6e9;"></div>
       </div>
+      <div id="wishSaveMsg" style="font-size:11px;color:#9b7a1a;margin-top:6px;min-height:14px;"></div>
     </div>
 
     <hr class="section-divider">
@@ -368,55 +391,52 @@
 </div>
 <script>
 const STORAGE_KEY = 'morgenritual_tage';
-
-  // ── SUPABASE ──
-  const SUPABASE_URL = 'https://jwnlmgtbanebwcwnqyab.supabase.co';
-  const SUPABASE_KEY = 'sb_publishable_SjQKmTwHwW0LeCwV5hfdtw_xqhUZnJy';
-  const SB_TABLE = 'morgenritual_days';
-
-  async function sbLoad(dayKey) {
-    try {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/${SB_TABLE}?day_key=eq.${dayKey}&select=*`, {
-        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
-      });
-      const data = await res.json();
-      return (data && data.length > 0) ? data[0] : null;
-    } catch(e) { return null; }
-  }
-
-  async function sbSave(payload) {
-    try {
-      const dayKey = payload.day_key;
-      const existing = await sbLoad(dayKey);
-      const method = existing ? 'PATCH' : 'POST';
-      const url = existing
-        ? `${SUPABASE_URL}/rest/v1/${SB_TABLE}?day_key=eq.${dayKey}`
-        : `${SUPABASE_URL}/rest/v1/${SB_TABLE}`;
-      await fetch(url, {
-        method,
-        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
-        body: JSON.stringify({ ...payload, updated_at: new Date().toISOString() })
-      });
-    } catch(e) {}
-  }
-
-  // Load from Supabase after page init
-  setTimeout(async function() {
-    const remote = await sbLoad(todayKey);
-    if (remote && remote.antworten) {
-      var a = remote.antworten;
-      ['q1','q2','q3','q4','q5','q6'].forEach(function(id) {
-        var el = document.getElementById(id);
-        if (el && a[id]) el.value = a[id];
-      });
-      if (!tage[todayKey]) tage[todayKey] = {};
-      tage[todayKey].antworten = remote.antworten;
-      var msg = document.getElementById('autoSaveMsg');
-      if (msg && (a.q1 || a.q2 || a.q3)) msg.textContent = '✓ Heute bereits ausgefüllt — du kannst jederzeit ändern';
-    }
-  }, 500);
-
 const mentorNames = { rohn: 'Jim Rohn', robbins: 'Tony Robbins', graziosi: 'Dean Graziosi' };
+
+// ── Supabase ──────────────────────────────────────────────────────
+var SB_URL  = 'https://jwnlmgtbanebwcwnqyab.supabase.co';
+var SB_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp3bmxtZ3RiYW5lYndjd25xeWFiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAxMzQyOTcsImV4cCI6MjA5NTcxMDI5N30.BQADGyIJLRb2k1x7O8Howei2zTbxyion-rpveXeMuAg';
+var sb = window.supabase ? window.supabase.createClient(SB_URL, SB_KEY) : null;
+
+// Sync one day to Supabase
+async function syncDay(key, data) {
+  if (!sb) return;
+  try {
+    var { error } = await sb.from('morgenritual_days')
+      .upsert({ day_key: key, antworten: data }, { onConflict: 'day_key' });
+    if (error) console.warn('Supabase sync error:', error);
+    else showSyncMsg('☁ Synchronisiert');
+  } catch(e) { console.warn('Supabase sync failed:', e); }
+}
+
+// Load all days from Supabase, merge into localStorage
+async function loadFromSupabase() {
+  if (!sb) return;
+  try {
+    showSyncMsg('☁ Lade...');
+    var { data, error } = await sb.from('morgenritual_days').select('*').order('day_key', { ascending: false });
+    if (error || !data || !data.length) { showSyncMsg(''); return; }
+    var changed = false;
+    data.forEach(function(row) {
+      if (row.day_key && row.antworten && !tage[row.day_key]) {
+        tage[row.day_key] = row.antworten;
+        changed = true;
+      }
+    });
+    if (changed) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(tage));
+      showSyncMsg('☁ ' + data.length + ' Tage geladen');
+    } else {
+      showSyncMsg('☁ Aktuell');
+    }
+    setTimeout(function() { showSyncMsg(''); }, 4000);
+  } catch(e) { console.warn('Supabase load failed:', e); showSyncMsg(''); }
+}
+
+function showSyncMsg(msg) {
+  var el = document.getElementById('syncStatus');
+  if (el) el.textContent = msg;
+}
 
 const rituals = {
   rohn: [
@@ -453,7 +473,7 @@ let selectedMentor = null;
 let currentStep = 0;
 let steps = [];
 let stepNotes = {};
-let stepTimes = {}; // tracks actual time spent per step
+let stepTimes = {};
 let timerInterval = null;
 let timerRemaining = 0;
 let timerTotal = 0;
@@ -464,58 +484,11 @@ const todayKey = new Date().toISOString().slice(0, 10);
 function loadTage() {
   try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch(e) { return {}; }
 }
-function saveManual() {
-  // Save to localStorage
-  var key = todayKey;
-  if (!tage[key]) {
-    tage[key] = { datum: key, mentor: selectedMentor, stepsTotal: 0, stepsDone: 0, completed: false, antworten: {}, savedAt: new Date().toISOString() };
-  }
-  tage[key].antworten = {
-    q1: document.getElementById('q1').value,
-    q2: document.getElementById('q2').value,
-    q3: document.getElementById('q3').value,
-    q4: document.getElementById('q4').value,
-    q5: document.getElementById('q5').value,
-    q6: document.getElementById('q6').value
-  };
-  if (selectedMentor) {
-    tage[key].mentor = selectedMentor;
-    tage[key].stepsTotal = steps.length;
-    tage[key].stepsDone = currentStep;
-    tage[key].completed = currentStep >= steps.length;
-  }
-  tage[key].savedAt = new Date().toISOString();
-  saveTage();
-
-  // Always auto-export JSON so data is never lost even if file changes
-  var blob = new Blob([JSON.stringify(tage, null, 2)], { type: 'application/json' });
-  var a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'morgenritual_daten.json';
-  a.click();
-  URL.revokeObjectURL(a.href);
-
-  var confirm = document.getElementById('saveConfirm');
-  if (confirm) { confirm.style.display = 'inline'; setTimeout(function() { confirm.style.display = 'none'; }, 2500); }
-}
-
-function toggleSaveInfo() {
-  var el = document.getElementById('saveInfo');
-  el.style.display = el.style.display === 'none' ? 'block' : 'none';
-}
 
 function saveTage() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(tage));
+  if (tage[todayKey]) syncDay(todayKey, tage[todayKey]);
   if (folderHandle) saveToFolder(true);
-  var today = tage[todayKey];
-  if (today) {
-    sbSave({
-      day_key: todayKey,
-      antworten: today.antworten || {},
-      mentor: today.mentor || null,
-      completed: today.completed || false
-    });
-  }
 }
 function esc(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -525,7 +498,7 @@ function esc(s) {
 document.getElementById('greetingText').textContent = 'Guten Morgen';
 document.getElementById('subtitleText').textContent = new Date().toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
-// Load today's answers and ritual state if already saved
+// Load today's answers
 (function() {
   var today = tage[todayKey];
   if (today && today.antworten) {
@@ -536,7 +509,9 @@ document.getElementById('subtitleText').textContent = new Date().toLocaleDateStr
     if (a.q4) document.getElementById('q4').value = a.q4;
     if (a.q5) document.getElementById('q5').value = a.q5;
     if (a.q6) document.getElementById('q6').value = a.q6;
-    if (a.q1 || a.q2 || a.q3 || a.q4 || a.q5 || a.q6) {
+    if (a.q7) document.getElementById('q7').value = a.q7;
+    if (a.q8) document.getElementById('q8').value = a.q8;
+    if (a.q1 || a.q2 || a.q3 || a.q4 || a.q5 || a.q6 || a.q7 || a.q8) {
       var msg = document.getElementById('autoSaveMsg');
       if (msg) msg.textContent = '✓ Heute bereits ausgefüllt — du kannst jederzeit ändern';
     }
@@ -544,6 +519,9 @@ document.getElementById('subtitleText').textContent = new Date().toLocaleDateStr
   if (today && today.stepTimes) stepTimes = today.stepTimes;
   if (today && today.stepNotes) stepNotes = today.stepNotes;
 })();
+
+// Load from Supabase on startup (merges cloud data into localStorage)
+loadFromSupabase();
 
 // Show import banner if no existing data
 if (Object.keys(tage).length === 0) {
@@ -574,7 +552,6 @@ function selectMentor(key, el) {
   selectedMentor = key;
   steps = rituals[key];
   currentStep = 0;
-  // Restore from today's saved data, don't reset
   var today = tage[todayKey];
   stepNotes = (today && today.stepNotes) ? today.stepNotes : {};
   stepTimes = (today && today.stepTimes) ? today.stepTimes : {};
@@ -601,7 +578,6 @@ function renderSteps() {
 
   saveToday(false);
 
-  // Drift hint: check if user aborted here 3+ times recently
   const currentTitle = steps[currentStep].title;
   const recentKeys = Object.keys(tage).sort((a,b) => b.localeCompare(a)).slice(0, 14);
   const abortCount = recentKeys.reduce(function(sum, k) {
@@ -621,7 +597,6 @@ function renderSteps() {
     var inner = '<div class="step-num">' + (i < currentStep ? '✓' : i + 1) + '</div><div style="flex:1;">';
     inner += '<div class="step-title">' + s.title + '</div>';
 
-    // Done steps — show time spent and Nochmal option
     if (i < currentStep) {
       var st = stepTimes[i];
       if (st) {
@@ -636,7 +611,6 @@ function renderSteps() {
       inner += '<div class="step-desc">' + s.desc + '</div>';
       inner += '<div class="step-source">' + s.source + '</div>';
 
-      // Dankbarkeit fields
       if (s.title.indexOf('Dankbarkeit') >= 0) {
         var saved = stepNotes[i] || ['','',''];
         inner += '<div style="display:flex;flex-direction:column;gap:6px;margin-top:10px;">';
@@ -646,7 +620,6 @@ function renderSteps() {
         inner += '</div>';
       }
 
-      // Lesen fields
       if (s.title.indexOf('Lesen') >= 0) {
         var savedL = (stepNotes[i] && typeof stepNotes[i] === 'object' && !Array.isArray(stepNotes[i])) ? stepNotes[i] : {buch:'', warum:''};
         inner += '<div style="display:flex;flex-direction:column;gap:6px;margin-top:10px;">';
@@ -665,7 +638,6 @@ function renderSteps() {
     container.appendChild(div);
   });
 
-  // Init timer state
   var s = steps[currentStep];
   if (s.mins > 0) {
     timerRemaining = s.mins * 60;
@@ -717,7 +689,6 @@ function startTimer() {
       var b = document.getElementById('timerStartBtn');
       if (b) { b.textContent = '✓ Fertig'; b.disabled = true; }
       playTimerDoneSound();
-      // Auto-record successful completion
       var s = steps[currentStep];
       if (s) {
         if (!stepTimes[currentStep]) stepTimes[currentStep] = { title: s.title, planned: s.mins * 60, attempts: [], successes: 0 };
@@ -757,7 +728,6 @@ function updateTimerDisplay() {
 }
 
 function playTimerDoneSound() {
-  // Three gentle rising tones — "you can open your eyes"
   try {
     var ctx = new (window.AudioContext || window.webkitAudioContext)();
     [440, 528, 660].forEach(function(freq, i) {
@@ -776,7 +746,6 @@ function playTimerDoneSound() {
 }
 
 function playAbortSound() {
-  // Short descending tone — neutral, not harsh
   try {
     var ctx = new (window.AudioContext || window.webkitAudioContext)();
     [440, 370].forEach(function(freq, i) {
@@ -795,7 +764,6 @@ function playAbortSound() {
 }
 
 function playCompletionEffect() {
-  // Green flash on progress bar
   var fill = document.getElementById('progressFill');
   if (fill) {
     fill.style.transition = 'background 0.1s';
@@ -805,7 +773,6 @@ function playCompletionEffect() {
       fill.style.transition = 'background 0.6s, width 0.4s';
     }, 400);
   }
-  // Green flash overlay on step container
   var container = document.getElementById('stepsContainer');
   if (container) {
     var flash = document.createElement('div');
@@ -816,10 +783,9 @@ function playCompletionEffect() {
     setTimeout(function() { flash.style.opacity = '0'; }, 350);
     setTimeout(function() { if (flash.parentNode) flash.parentNode.removeChild(flash); }, 700);
   }
-  // Soft chime using Web Audio API
   try {
     var ctx = new (window.AudioContext || window.webkitAudioContext)();
-    var notes = [523, 659, 784]; // C, E, G — major chord
+    var notes = [523, 659, 784];
     notes.forEach(function(freq, i) {
       var osc = ctx.createOscillator();
       var gain = ctx.createGain();
@@ -837,7 +803,6 @@ function playCompletionEffect() {
 }
 
 function repeatStep(idx) {
-  // Simply go back — new attempt only recorded when "Schritt abgeschlossen" clicked
   clearTimer();
   currentStep = idx;
   renderSteps();
@@ -849,7 +814,6 @@ function nextStep() {
     var plannedSecs = s.mins * 60;
     var spentSecs = plannedSecs > 0 ? (plannedSecs - timerRemaining) : 0;
 
-    // Only record time if timer was actually started
     if (plannedSecs > 0 && spentSecs > 0) {
       if (!stepTimes[currentStep]) {
         stepTimes[currentStep] = { title: s.title, planned: plannedSecs, attempts: [] };
@@ -859,7 +823,6 @@ function nextStep() {
       stepTimes[currentStep].spent = attempts[attempts.length - 1];
     }
 
-    // Show hint if this attempt was short (more than 20% remaining)
     var shortcut = plannedSecs > 0 && spentSecs > 0 && timerRemaining > plannedSecs * 0.2;
     var notStarted = plannedSecs > 0 && spentSecs === 0 && timerRemaining === plannedSecs;
 
@@ -905,9 +868,11 @@ function saveToday(completed) {
       q1: document.getElementById('q1').value || (existing.antworten && existing.antworten.q1) || '',
       q2: document.getElementById('q2').value || (existing.antworten && existing.antworten.q2) || '',
       q3: document.getElementById('q3').value,
-    q4: document.getElementById('q4').value || (existing.antworten && existing.antworten.q4) || '',
+      q4: document.getElementById('q4').value || (existing.antworten && existing.antworten.q4) || '',
       q5: document.getElementById('q5').value || (existing.antworten && existing.antworten.q5) || '',
-      q6: document.getElementById('q6').value || (existing.antworten && existing.antworten.q6) || ''
+      q6: document.getElementById('q6').value || (existing.antworten && existing.antworten.q6) || '',
+      q7: document.getElementById('q7').value || (existing.antworten && existing.antworten.q7) || '',
+      q8: document.getElementById('q8').value || (existing.antworten && existing.antworten.q8) || ''
     },
     stepNotes: stepNotes,
     stepTimes: stepTimes,
@@ -918,7 +883,7 @@ function saveToday(completed) {
   saveTage();
 }
 
-// Auto-save beim Verlassen jedes Feldes (blur)
+// Auto-save on blur
 function autoSave() {
   var key = todayKey;
   var existing = tage[key] || {};
@@ -931,7 +896,9 @@ function autoSave() {
     q3: document.getElementById('q3').value,
     q4: document.getElementById('q4').value,
     q5: document.getElementById('q5').value,
-    q6: document.getElementById('q6').value
+    q6: document.getElementById('q6').value,
+    q7: document.getElementById('q7').value,
+    q8: document.getElementById('q8').value
   };
   if (selectedMentor) tage[key].mentor = selectedMentor;
   tage[key].savedAt = new Date().toISOString();
@@ -945,11 +912,11 @@ function autoSave() {
   }
 }
 
-['q1','q2','q3','q4','q5','q6'].forEach(function(id) {
+['q1','q2','q3','q4','q5','q6','q7','q8'].forEach(function(id) {
   document.getElementById(id).addEventListener('blur', autoSave);
 });
 
-// Custom resize handle for writing textareas
+// Custom resize handle
 function startResize(e, id) {
   e.preventDefault();
   var ta = document.getElementById(id);
@@ -966,6 +933,19 @@ function startResize(e, id) {
   document.addEventListener('mousemove', onMove);
   document.addEventListener('mouseup', onUp);
 }
+
+// ── Wunsch — fortlaufendes Dokument (kein tägliches Reset) ──
+var WISHES_KEY = 'morgenritual_wishes';
+function loadWish() { try { return localStorage.getItem(WISHES_KEY) || ''; } catch(e) { return ''; } }
+function saveWish(val) {
+  localStorage.setItem(WISHES_KEY, val);
+  var msg = document.getElementById('wishSaveMsg');
+  if (msg) { msg.textContent = '✓ Wunsch gespeichert'; clearTimeout(msg._t); msg._t = setTimeout(function() { msg.textContent = ''; }, 3000); }
+}
+// Load wish on startup
+(function() { var w = loadWish(); if (w) document.getElementById('qw').value = w; })();
+// Auto-save wish on input
+document.getElementById('qw').addEventListener('input', function() { saveWish(this.value); });
 
 // Writing area
 var WRITING_KEY = 'morgenritual_writing';
@@ -989,7 +969,6 @@ function switchWritingTab(tab, el) {
 }
 
 function saveWritingDoc(project, val) {
-  // Save as continuous document — one text per project, not per day
   writing['doc_' + project] = { text: val, updatedAt: new Date().toISOString() };
   saveWriting();
   var msg = document.getElementById('writingSaveMsg');
@@ -1025,7 +1004,6 @@ function exportWriting(project) {
   });
 })();
 
-// Auto-save writing on input
 document.getElementById('write-stephen').addEventListener('input', function() { saveWritingDoc('stephen', this.value); });
 document.getElementById('write-comedy').addEventListener('input', function() { saveWritingDoc('comedy', this.value); });
 document.getElementById('write-creator').addEventListener('input', function() { saveWritingDoc('creator', this.value); });
@@ -1068,14 +1046,9 @@ function renderVerlauf() {
       (a.q3 ? '<div class="detail-q">Was ich heute kreiere</div><div class="detail-a">' + esc(a.q3) + '</div>' : '') +
       (a.q4 ? '<div class="detail-q">Wo ich mich zeige</div><div class="detail-a">' + esc(a.q4) + '</div>' : '') +
       (a.q5 ? '<div class="detail-q">Warum mein Nordstern heute wichtig ist</div><div class="detail-a">' + esc(a.q5) + '</div>' : '') +
-      (function() {
-        var w = writing[k] || {};
-        var whtml = '';
-        if (w.stephen) whtml += '<div class="detail-q">Sir Stephen & Me</div><div class="detail-a" style="white-space:pre-wrap;">' + esc(w.stephen) + '</div>';
-        if (w.comedy) whtml += '<div class="detail-q">Comedy</div><div class="detail-a" style="white-space:pre-wrap;">' + esc(w.comedy) + '</div>';
-        if (w.creator) whtml += '<div class="detail-q">Creator Business</div><div class="detail-a" style="white-space:pre-wrap;">' + esc(w.creator) + '</div>';
-        return whtml;
-      })() +
+      (a.q6 ? '<div class="detail-q" style="color:#185fa5;">Mein Anker des Tages</div><div class="detail-a">' + esc(a.q6) + '</div>' : '') +
+      (a.q7 ? '<div class="detail-q" style="color:#185fa5;">Was mich heute freut</div><div class="detail-a">' + esc(a.q7) + '</div>' : '') +
+      (a.q8 ? '<div class="detail-q" style="color:#185fa5;">Anstrengendes + Belohnung</div><div class="detail-a">' + esc(a.q8) + '</div>' : '') +
       dankHTML +
       '</div></div>';
   }).join('');
@@ -1095,7 +1068,6 @@ function renderProfil() {
     return;
   }
 
-  // Last saved indicator
   var todayEntry = tage[todayKey];
   var lastSavedStr = '';
   if (todayEntry && todayEntry.savedAt) {
@@ -1103,7 +1075,6 @@ function renderProfil() {
     lastSavedStr = '<div style="font-size:12px;color:#9b9b93;margin-bottom:1.5rem;">✓ Zuletzt gespeichert heute um ' + ls.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' Uhr</div>';
   }
 
-  // Streak
   var streak = 0;
   for (var i = 0; i < 365; i++) {
     var d = new Date(); d.setDate(d.getDate() - i);
@@ -1111,11 +1082,9 @@ function renderProfil() {
     if (tage[k]) streak++; else if (i > 0) break;
   }
 
-  // Mentor counts
   var mc = {};
   keys.forEach(function(k) { var m = tage[k].mentor; if (m) mc[m] = (mc[m]||0)+1; });
 
-  // Abort counts — from aborts array (new) or abortedAt (old)
   var ac = {};
   var abortLastTime = {};
   keys.forEach(function(k) {
@@ -1123,7 +1092,7 @@ function renderProfil() {
     if (t.aborts && t.aborts.length) {
       t.aborts.forEach(function(a) {
         ac[a.step] = (ac[a.step]||0)+1;
-        abortLastTime[a.step] = a; // keep last
+        abortLastTime[a.step] = a;
       });
     } else if (t.abortedAt) {
       ac[t.abortedAt] = (ac[t.abortedAt]||0)+1;
@@ -1131,7 +1100,6 @@ function renderProfil() {
   });
   var abortEntries = Object.keys(ac).sort(function(a,b) { return ac[b]-ac[a]; });
 
-  // Nordsterne
   var seen = {};
   var nordsterne = [];
   keys.forEach(function(k) {
@@ -1197,8 +1165,6 @@ function renderProfil() {
       var title = e[0], d = e[1];
       html += '<div style="margin-bottom:14px;">';
       html += '<div style="font-size:13px;font-weight:500;margin-bottom:6px;">' + esc(title) + '</div>';
-
-      // Abort line
       if (d.totalAttempts >= 1) {
         var pct = Math.round((d.lastAbort / d.planned) * 100);
         var color = pct >= 80 ? '#3b6d11' : pct >= 50 ? '#854f0b' : '#791f1f';
@@ -1207,30 +1173,21 @@ function renderProfil() {
         html += '<div style="height:4px;background:#d3d1c7;border-radius:2px;margin-bottom:4px;"><div style="height:4px;background:' + color + ';border-radius:2px;width:' + Math.min(pct,100) + '%;"></div></div>';
         html += '<div style="font-size:11px;color:#854f0b;">' + d.shortcuts + 'x vorzeitig abgeschlossen</div>';
       }
-
-      // Success line
       if (d.successes >= 1) {
         html += '<div style="display:flex;justify-content:space-between;font-size:12px;color:#6b6b65;margin-bottom:3px;margin-top:' + (d.totalAttempts >= 1 ? '8px' : '0') + ';">';
         html += '<span>Vollständig</span><span style="color:#3b6d11;font-weight:500;">' + fmtTime(d.planned) + ' / ' + fmtTime(d.planned) + '</span></div>';
         html += '<div style="height:4px;background:#d3d1c7;border-radius:2px;margin-bottom:4px;"><div style="height:4px;background:#3b6d11;border-radius:2px;width:100%;"></div></div>';
         html += '<div style="font-size:11px;color:#3b6d11;">✓ ' + d.successes + 'x vollständig durchgeführt</div>';
       }
-
       html += '</div>';
     });
     html += '</div>';
   }
 
-  // Daily answers over time
   html += '<div class="section-label">Deine täglichen Antworten</div>';
-  html += '<div style="font-size:13px;color:#6b6b65;margin-bottom:12px;line-height:1.6;">Die Muster entstehen durch Wiederholung. Hier siehst du alle deine Antworten im Überblick.</div>';
+  html += '<div style="font-size:13px;color:#6b6b65;margin-bottom:12px;line-height:1.6;">Die Muster entstehen durch Wiederholung.</div>';
 
-  // Befinden pattern
-  var befinden = keys.map(function(k) {
-    var a = tage[k].antworten;
-    return a && a.q1 ? { date: k, val: a.q1 } : null;
-  }).filter(Boolean).slice(0, 10);
-
+  var befinden = keys.map(function(k) { var a = tage[k].antworten; return a && a.q1 ? { date: k, val: a.q1 } : null; }).filter(Boolean).slice(0, 10);
   if (befinden.length) {
     html += '<div style="background:#f1efe8;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem;">';
     html += '<div style="font-size:12px;font-weight:500;color:#6b6b65;margin-bottom:8px;">Wie es mir geht — die letzten ' + befinden.length + ' Tage</div>';
@@ -1241,15 +1198,10 @@ function renderProfil() {
     html += '</div>';
   }
 
-  // Nordstern pattern
-  var nordsternAll = keys.map(function(k) {
-    var a = tage[k].antworten;
-    return a && a.q2 ? { date: k, val: a.q2 } : null;
-  }).filter(Boolean).slice(0, 10);
-
+  var nordsternAll = keys.map(function(k) { var a = tage[k].antworten; return a && a.q2 ? { date: k, val: a.q2 } : null; }).filter(Boolean).slice(0, 10);
   if (nordsternAll.length) {
     html += '<div style="background:#f1efe8;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem;">';
-    html += '<div style="font-size:12px;font-weight:500;color:#6b6b65;margin-bottom:8px;">Mein Nordstern — wie er sich beschreibt</div>';
+    html += '<div style="font-size:12px;font-weight:500;color:#6b6b65;margin-bottom:8px;">Mein Nordstern</div>';
     nordsternAll.forEach(function(e) {
       var d = new Date(e.date + 'T12:00:00').toLocaleDateString('de-DE', { weekday: 'short', day: 'numeric', month: 'short' });
       html += '<div style="display:flex;gap:10px;margin-bottom:6px;font-size:13px;"><span style="color:#9b9b93;white-space:nowrap;min-width:70px;">' + d + '</span><span>' + esc(e.val) + '</span></div>';
@@ -1257,15 +1209,10 @@ function renderProfil() {
     html += '</div>';
   }
 
-  // Kreation pattern
-  var kreation = keys.map(function(k) {
-    var a = tage[k].antworten;
-    return a && a.q3 ? { date: k, val: a.q3 } : null;
-  }).filter(Boolean).slice(0, 10);
-
+  var kreation = keys.map(function(k) { var a = tage[k].antworten; return a && a.q3 ? { date: k, val: a.q3 } : null; }).filter(Boolean).slice(0, 10);
   if (kreation.length) {
     html += '<div style="background:#f1efe8;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem;">';
-    html += '<div style="font-size:12px;font-weight:500;color:#6b6b65;margin-bottom:8px;">Was ich kreiere — meine täglichen Absichten</div>';
+    html += '<div style="font-size:12px;font-weight:500;color:#6b6b65;margin-bottom:8px;">Was ich kreiere</div>';
     kreation.forEach(function(e) {
       var d = new Date(e.date + 'T12:00:00').toLocaleDateString('de-DE', { weekday: 'short', day: 'numeric', month: 'short' });
       html += '<div style="display:flex;gap:10px;margin-bottom:6px;font-size:13px;"><span style="color:#9b9b93;white-space:nowrap;min-width:70px;">' + d + '</span><span>' + esc(e.val) + '</span></div>';
@@ -1273,39 +1220,41 @@ function renderProfil() {
     html += '</div>';
   }
 
-  // Wo ich mich zeige
-  var sichtbar = keys.map(function(k) {
-    var a = tage[k].antworten;
-    return a && a.q4 ? { date: k, val: a.q4 } : null;
-  }).filter(Boolean).slice(0, 10);
+  // Selbstführungs-Muster
+  var anker = keys.map(function(k) { var a = tage[k].antworten; return a && a.q6 ? { date: k, val: a.q6 } : null; }).filter(Boolean).slice(0, 10);
+  if (anker.length) {
+    html += '<div style="background:#e6f1fb;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem;border-left:3px solid #378add;">';
+    html += '<div style="font-size:12px;font-weight:500;color:#185fa5;margin-bottom:8px;">Meine Ankersätze — Denken lenken</div>';
+    anker.forEach(function(e) {
+      var d = new Date(e.date + 'T12:00:00').toLocaleDateString('de-DE', { weekday: 'short', day: 'numeric', month: 'short' });
+      html += '<div style="display:flex;gap:10px;margin-bottom:6px;font-size:13px;"><span style="color:#9b9b93;white-space:nowrap;min-width:70px;">' + d + '</span><span style="font-style:italic;">' + esc(e.val) + '</span></div>';
+    });
+    html += '</div>';
+  }
 
-  if (sichtbar.length) {
-    html += '<div style="background:#f1efe8;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem;">';
-    html += '<div style="font-size:12px;font-weight:500;color:#6b6b65;margin-bottom:8px;">Wo ich mich zeige</div>';
-    sichtbar.forEach(function(e) {
+  var freude = keys.map(function(k) { var a = tage[k].antworten; return a && a.q7 ? { date: k, val: a.q7 } : null; }).filter(Boolean).slice(0, 10);
+  if (freude.length) {
+    html += '<div style="background:#e6f1fb;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem;border-left:3px solid #378add;">';
+    html += '<div style="font-size:12px;font-weight:500;color:#185fa5;margin-bottom:8px;">Was mir Energie gibt</div>';
+    freude.forEach(function(e) {
       var d = new Date(e.date + 'T12:00:00').toLocaleDateString('de-DE', { weekday: 'short', day: 'numeric', month: 'short' });
       html += '<div style="display:flex;gap:10px;margin-bottom:6px;font-size:13px;"><span style="color:#9b9b93;white-space:nowrap;min-width:70px;">' + d + '</span><span>' + esc(e.val) + '</span></div>';
     });
     html += '</div>';
   }
 
-  // Warum der Nordstern
-  var warum = keys.map(function(k) {
-    var a = tage[k].antworten;
-    return a && a.q5 ? { date: k, val: a.q5 } : null;
-  }).filter(Boolean).slice(0, 10);
-
-  if (warum.length) {
-    html += '<div style="background:#f1efe8;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem;">';
-    html += '<div style="font-size:12px;font-weight:500;color:#6b6b65;margin-bottom:8px;">Warum mein Nordstern heute wichtig ist</div>';
-    warum.forEach(function(e) {
+  var belohnung = keys.map(function(k) { var a = tage[k].antworten; return a && a.q8 ? { date: k, val: a.q8 } : null; }).filter(Boolean).slice(0, 10);
+  if (belohnung.length) {
+    html += '<div style="background:#e6f1fb;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem;border-left:3px solid #378add;">';
+    html += '<div style="font-size:12px;font-weight:500;color:#185fa5;margin-bottom:8px;">Anstrengendes + Belohnung</div>';
+    belohnung.forEach(function(e) {
       var d = new Date(e.date + 'T12:00:00').toLocaleDateString('de-DE', { weekday: 'short', day: 'numeric', month: 'short' });
       html += '<div style="display:flex;gap:10px;margin-bottom:6px;font-size:13px;"><span style="color:#9b9b93;white-space:nowrap;min-width:70px;">' + d + '</span><span>' + esc(e.val) + '</span></div>';
     });
     html += '</div>';
   }
 
-  // Dankbarkeit pattern
+  // Dankbarkeit
   var dankAll = [];
   keys.forEach(function(k) {
     var sn = tage[k].stepNotes || {};
@@ -1317,7 +1266,6 @@ function renderProfil() {
     });
   });
   dankAll = dankAll.slice(0, 10);
-
   if (dankAll.length) {
     html += '<div style="background:#f1efe8;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem;">';
     html += '<div style="font-size:12px;font-weight:500;color:#6b6b65;margin-bottom:8px;">Wofür ich dankbar bin</div>';
@@ -1325,6 +1273,15 @@ function renderProfil() {
       var d = new Date(e.date + 'T12:00:00').toLocaleDateString('de-DE', { weekday: 'short', day: 'numeric', month: 'short' });
       html += '<div style="display:flex;gap:10px;margin-bottom:8px;font-size:13px;"><span style="color:#9b9b93;white-space:nowrap;min-width:70px;">' + d + '</span><div>' + e.items.map(function(i) { return '· ' + esc(i); }).join('<br>') + '</div></div>';
     });
+    html += '</div>';
+  }
+
+  // Wünsche — fortlaufend
+  var currentWish = loadWish();
+  if (currentWish) {
+    html += '<div style="background:#fdf6e9;border:0.5px solid #c9a84c;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem;">';
+    html += '<div style="font-size:12px;font-weight:500;color:#9b7a1a;margin-bottom:8px;">Meine Wünsche</div>';
+    html += '<div style="font-size:13px;color:#1a1a18;white-space:pre-wrap;line-height:1.6;">' + esc(currentWish) + '</div>';
     html += '</div>';
   }
 
@@ -1354,11 +1311,6 @@ function saveAbort() {
   tage[todayKey].abortedAt = abortedAt;
   saveTage();
   playAbortSound();
-
-  var abortCount = tage[todayKey].aborts.length;
-  var msg = document.getElementById('abortMsg');
-  msg.style.display = 'block';
-  msg.textContent = abortCount + '. Abbruch heute bei "' + abortedAt + '"' + (spentSecs > 0 ? ' nach ' + fmtTime(spentSecs) : '') + '.';
   renderProfil();
 }
 
@@ -1382,19 +1334,11 @@ async function connectFolder() {
     folderHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
     document.getElementById('folderName').textContent = folderHandle.name;
     document.getElementById('folderIndicator').style.display = 'flex';
-    document.getElementById('folderBtn').style.background = '#eaf3de';
-    document.getElementById('folderBtn').style.color = '#3b6d11';
-    var status = document.getElementById('folderStatus');
-    if (status) status.textContent = 'Verbunden mit: ' + folderHandle.name;
-    var s = document.getElementById('btnSaveFolder');
-    var l = document.getElementById('btnLoadFolder');
-    if (s) s.style.display = 'inline-block';
-    if (l) l.style.display = 'inline-block';
   } catch(e) { if (e.name !== 'AbortError') alert('Ordner konnte nicht verbunden werden.'); }
 }
 
 function clearAll() {
-  if (!confirm('Wirklich alle Daten löschen? Erstelle zuerst ein Backup.')) return;
+  if (!confirm('Wirklich alle Daten löschen? Erstelle vorher ein Backup.')) return;
   tage = {};
   saveTage();
   alert('Alle Daten gelöscht.');
@@ -1408,7 +1352,6 @@ async function saveToFolder(silent) {
     var writable = await fh.createWritable();
     await writable.write(JSON.stringify(tage, null, 2));
     await writable.close();
-    if (!silent) { var s = document.getElementById('folderStatus'); if (s) s.textContent = 'Gespeichert: ' + fileName; }
   } catch(e) { console.warn('Folder save failed', e); }
 }
 
