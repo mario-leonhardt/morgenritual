@@ -129,6 +129,24 @@
     </div>
   </div>
 
+  <!-- Tagesbild -->
+  <div id="tagesbild-block" style="margin-bottom:1.25rem;">
+    <div id="tagesbild-preview" style="display:none;position:relative;border-radius:14px;overflow:hidden;max-height:220px;">
+      <img id="tagesbild-img" src="" style="width:100%;object-fit:cover;max-height:220px;display:block;border-radius:14px;">
+      <div style="position:absolute;top:10px;right:10px;display:flex;gap:6px;">
+        <button onclick="downloadTagesbild()" style="background:rgba(0,0,0,0.5);color:#fff;border:none;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;line-height:1;" title="Herunterladen">↓</button>
+        <button onclick="removeTagesbild()" style="background:rgba(0,0,0,0.5);color:#fff;border:none;border-radius:50%;width:28px;height:28px;font-size:16px;cursor:pointer;line-height:1;">×</button>
+      </div>
+      <div id="tagesbild-datum" style="position:absolute;bottom:10px;left:14px;font-size:11px;color:rgba(255,255,255,0.8);background:rgba(0,0,0,0.35);padding:2px 8px;border-radius:8px;"></div>
+    </div>
+    <label id="tagesbild-upload-btn" for="tagesbild-input" style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:12px 16px;border:1.5px dashed #d3d1c7;border-radius:14px;color:#9b9b93;font-size:13px;transition:border-color 0.2s;">
+      <span style="font-size:22px;">📷</span>
+      <span>Foto des Tages hochladen</span>
+    </label>
+    <input type="file" id="tagesbild-input" accept="image/*" style="display:none;" onchange="uploadTagesbild(event)">
+    <div id="tagesbild-status" style="font-size:11px;color:#378add;margin-top:4px;min-height:14px;padding-left:4px;"></div>
+  </div>
+
   <div class="ritual-view" id="ritualView">
     <div id="importBanner" style="display:none;background:#faeeda;border-radius:10px;padding:12px 16px;margin-bottom:1.5rem;font-size:13px;color:#633806;line-height:1.65;">
       <strong>Hast du bereits Einträge?</strong> Importiere deine <em>morgenritual_daten.json</em> unter <strong>Speichern & Backup → Backup importieren</strong> um deine früheren Antworten wiederherzustellen.
@@ -436,6 +454,7 @@ function saveTage() {
 }
 function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
+renderTagesbild();
 document.getElementById('greetingText').textContent = 'Guten Morgen';
 document.getElementById('subtitleText').textContent = new Date().toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
@@ -630,6 +649,67 @@ function saveWish(val){
 (function(){var w=loadWish();if(w)document.getElementById('qw').value=w;})();
 document.getElementById('qw').addEventListener('input',function(){saveWish(this.value);});
 
+// ── Tagesbild ──────────────────────────────────────────────
+var PHOTO_KEY='morgenritual_photos';
+function loadPhotos(){try{return JSON.parse(localStorage.getItem(PHOTO_KEY))||{};}catch(e){return {};}}
+function savePhotos(p){localStorage.setItem(PHOTO_KEY,JSON.stringify(p));}
+
+function renderTagesbild(){
+  var photos=loadPhotos();
+  var url=photos[todayKey];
+  var preview=document.getElementById('tagesbild-preview');
+  var btn=document.getElementById('tagesbild-upload-btn');
+  if(url){
+    document.getElementById('tagesbild-img').src=url;
+    document.getElementById('tagesbild-datum').textContent=todayKey;
+    preview.style.display='block';
+    btn.style.display='none';
+  } else {
+    preview.style.display='none';
+    btn.style.display='flex';
+  }
+}
+
+async function uploadTagesbild(e){
+  var file=e.target.files[0]; if(!file)return;
+  var status=document.getElementById('tagesbild-status');
+  status.textContent='⏳ Wird hochgeladen...';
+  // compress via canvas
+  var img=new Image();
+  img.onload=async function(){
+    var canvas=document.createElement('canvas');
+    var max=1200; var w=img.width; var h=img.height;
+    if(w>max){h=Math.round(h*max/w);w=max;}
+    canvas.width=w;canvas.height=h;
+    canvas.getContext('2d').drawImage(img,0,0,w,h);
+    canvas.toBlob(async function(blob){
+      var path=todayKey+'/'+Date.now()+'.jpg';
+      var {data,error}=await sb.storage.from('morgenritual-photos').upload(path,blob,{contentType:'image/jpeg',upsert:true});
+      if(error){status.textContent='⚠ Fehler: '+error.message;return;}
+      var {data:urlData}=sb.storage.from('morgenritual-photos').getPublicUrl(path);
+      var url=urlData.publicUrl;
+      var photos=loadPhotos(); photos[todayKey]=url; savePhotos(photos);
+      status.textContent='✓ Gespeichert';
+      setTimeout(function(){status.textContent='';},3000);
+      renderTagesbild();
+    },'image/jpeg',0.82);
+  };
+  img.src=URL.createObjectURL(file);
+  e.target.value='';
+}
+
+function downloadTagesbild(){
+  var photos=loadPhotos(); var url=photos[todayKey]; if(!url)return;
+  var a=document.createElement('a');
+  a.href=url; a.download='morgenritual-'+todayKey+'.jpg';
+  a.target='_blank'; a.click();
+}
+
+async function removeTagesbild(){
+  var photos=loadPhotos(); delete photos[todayKey]; savePhotos(photos);
+  renderTagesbild();
+}
+
 var STRUGGLE_KEY='morgenritual_struggle';
 var struggleQuestions=[
   'Was habe ich heute konkret mit diesem Problem vor?',
@@ -727,7 +807,10 @@ function renderVerlauf() {
       if(Array.isArray(n)&&n.some(function(x){return x;}))dankHTML+='<div class="detail-q">Dankbarkeit</div><div class="detail-a">'+n.filter(Boolean).map(esc).join(' · ')+'</div>';
       if(n&&typeof n==='object'&&!Array.isArray(n)&&n.buch)dankHTML+='<div class="detail-q">Lesen</div><div class="detail-a">'+esc(n.buch)+(n.warum?' — <em>'+esc(n.warum)+'</em>':'')+'</div>';
     });
-    return '<div class="day-card"><div class="day-top"><div class="day-date">'+d+'</div>'+badge+'</div><div class="day-steps">'+mn+'</div>'+
+    var photos=loadPhotos();
+    var photoUrl=photos[k];
+    var photoHtml=photoUrl?'<img src="'+photoUrl+'" style="width:100%;max-height:180px;object-fit:cover;border-radius:10px 10px 0 0;display:block;margin:-1rem -1rem 1rem -1rem;width:calc(100% + 2rem);">':'';
+    return '<div class="day-card" style="overflow:hidden;">'+photoHtml+'<div class="day-top"><div class="day-date">'+d+'</div>'+badge+'</div><div class="day-steps">'+mn+'</div>'+
       '<div class="day-detail">'+
       (a.q1?'<div class="detail-q">Wie geht es mir heute?</div><div class="detail-a">'+esc(a.q1)+'</div>':'')+
       (a.q9?'<div class="detail-q">Wofür bin ich dankbar?</div><div class="detail-a">'+esc(a.q9)+'</div>':'')+
