@@ -3,714 +3,503 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Morgenritual</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌅</text></svg>">
+<title>Power System — Mario Leonhardt</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f9f8f5; color: #1a1a18; min-height: 100vh; padding: 2rem 1rem; }
+  :root {
+    --bg: #f9f8f5; --ink: #1a1a18; --muted: #6b6b65; --rule: #d3d1c7;
+    --accent: #185fa5; --accent-light: #e6f1fb; --accent-mid: #378add;
+    --green: #3b6d11; --green-light: #eaf3de; --warm: #f1efe8;
+    --orange: #633806; --orange-light: #faeeda;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; font-weight: 300; background: var(--bg); color: var(--ink); min-height: 100vh; padding: 2rem 1rem 4rem; }
   .container { max-width: 680px; margin: 0 auto; }
-  .top-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; flex-wrap: wrap; gap: 10px; }
-  .greeting { font-size: 26px; font-weight: 500; color: #1a1a18; margin-bottom: 4px; }
-  .subtitle { font-size: 15px; color: #6b6b65; }
-  .top-btns { display: flex; gap: 8px; flex-shrink: 0; margin-top: 4px; flex-wrap: wrap; }
-  .icon-btn { padding: 7px 13px; border-radius: 8px; border: 0.5px solid #b4b2a9; background: transparent; color: #6b6b65; font-size: 13px; cursor: pointer; font-family: inherit; white-space: nowrap; }
-  .icon-btn:hover { background: #f1efe8; }
-  .question-card { background: #f1efe8; border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 1rem; }
-  .q-label { font-size: 12px; color: #9b9b93; margin-bottom: 4px; }
-  .q-text { font-size: 16px; font-weight: 500; color: #1a1a18; }
-  .q-input { width: 100%; margin-top: 10px; font-size: 15px; padding: 10px 12px; border-radius: 8px; border: 0.5px solid #ccccc4; background: #fff; color: #1a1a18; resize: none; font-family: inherit; }
-  .q-input:focus { outline: none; border-color: #888780; }
-  .mentor-section { margin: 2rem 0 1rem; }
-  .mentor-label { font-size: 13px; color: #6b6b65; margin-bottom: 10px; }
-  .mentor-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-  .mentor-card { background: #fff; border: 0.5px solid #d3d1c7; border-radius: 12px; padding: 1rem; cursor: pointer; transition: border-color 0.15s; text-align: center; }
-  .mentor-card:hover { border-color: #888780; }
-  .mentor-card.selected { border: 2px solid #185fa5; background: #e6f1fb; }
-  .mentor-name { font-size: 14px; font-weight: 500; color: #1a1a18; margin-bottom: 4px; }
-  .mentor-tag { font-size: 11px; color: #6b6b65; }
-  .mentor-card.selected .mentor-name, .mentor-card.selected .mentor-tag { color: #185fa5; }
-  .step-area { margin-top: 1.5rem; }
-  .progress-bar { height: 4px; background: #f1efe8; border-radius: 2px; margin-bottom: 2rem; }
-  .progress-fill { height: 4px; background: #378add; border-radius: 2px; transition: width 0.4s; }
-  .step-card { background: #fff; border: 0.5px solid #d3d1c7; border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 10px; display: flex; gap: 14px; align-items: flex-start; opacity: 0.4; transition: opacity 0.3s; }
-  .step-card.active { opacity: 1; border-color: #888780; }
-  .step-card.done { opacity: 0.6; }
-  .step-num { width: 28px; height: 28px; border-radius: 50%; background: #f1efe8; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; color: #6b6b65; flex-shrink: 0; margin-top: 2px; }
-  .step-card.active .step-num { background: #e6f1fb; color: #185fa5; }
-  .step-card.done .step-num { background: #eaf3de; color: #3b6d11; }
-  .step-title { font-size: 14px; font-weight: 500; color: #1a1a18; margin-bottom: 3px; }
-  .step-desc { font-size: 13px; color: #6b6b65; line-height: 1.5; margin-top: 4px; }
-  .step-source { font-size: 11px; color: #9b9b93; margin-top: 4px; }
-  .step-input { width: 100%; font-size: 13px; padding: 8px 10px; border-radius: 6px; border: 0.5px solid #ccccc4; background: #fff; color: #1a1a18; font-family: inherit; margin-top: 4px; }
-  .step-input:focus { outline: none; border-color: #888780; }
-  .step-textarea { width: 100%; font-size: 13px; padding: 8px 10px; border-radius: 6px; border: 0.5px solid #ccccc4; background: #fff; color: #1a1a18; font-family: inherit; resize: none; margin-top: 4px; }
-  .step-textarea:focus { outline: none; border-color: #888780; }
-  .drift-hint { background: #faeeda; border-radius: 8px; padding: 10px 12px; margin-top: 10px; font-size: 12px; color: #633806; line-height: 1.6; }
-  .timer-block { margin-top: 14px; background: #f9f8f5; border-radius: 10px; padding: 12px 14px; display: flex; align-items: center; gap: 12px; }
-  .timer-display { font-size: 22px; font-weight: 500; color: #185fa5; min-width: 56px; font-variant-numeric: tabular-nums; }
-  .timer-display.done { color: #3b6d11; }
-  .timer-btns { display: flex; gap: 6px; }
-  .tbtn { padding: 5px 12px; border-radius: 6px; border: 0.5px solid #b4b2a9; background: transparent; color: #1a1a18; font-size: 12px; cursor: pointer; font-family: inherit; }
-  .tbtn:hover { background: #f1efe8; }
-  .tbtn.start { background: #e6f1fb; color: #185fa5; border-color: #378add; }
-  .tbtn.start:hover { background: #b5d4f4; }
-  .timer-progress { flex: 1; height: 4px; background: #e0dfd7; border-radius: 2px; overflow: hidden; }
-  .timer-progress-fill { height: 100%; background: #378add; border-radius: 2px; transition: width 0.5s linear; }
-  .btn-row { display: flex; gap: 10px; margin-top: 1.5rem; }
-  .btn { padding: 10px 20px; border-radius: 8px; border: 0.5px solid #b4b2a9; background: transparent; color: #1a1a18; font-size: 14px; cursor: pointer; font-family: inherit; }
-  .btn:hover { background: #f1efe8; }
-  .btn-primary { background: #e6f1fb; color: #185fa5; border-color: #378add; }
-  .btn-primary:hover { background: #b5d4f4; }
-  .btn-danger { color: #791f1f; border-color: #f09595; }
-  .complete-msg { text-align: center; padding: 2rem; color: #6b6b65; font-size: 15px; line-height: 1.7; }
-  .complete-msg .big { font-size: 28px; margin-bottom: 8px; }
-  .section-divider { border: none; border-top: 0.5px solid #d3d1c7; margin: 2rem 0; }
-  .view { display: none; }
-  .view.active { display: block; }
-  .ritual-view { display: block; }
-  .ritual-view.hidden { display: none; }
-  .view-header { font-size: 20px; font-weight: 500; margin-bottom: 4px; }
-  .view-sub { font-size: 14px; color: #6b6b65; margin-bottom: 1.5rem; }
-  .day-card { background: #fff; border: 0.5px solid #d3d1c7; border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 10px; }
-  .day-card:hover { border-color: #888780; }
-  .day-top { display: flex; justify-content: space-between; align-items: center; }
-  .day-date { font-size: 14px; font-weight: 500; color: #1a1a18; }
-  .day-steps { font-size: 12px; color: #9b9b93; margin-top: 4px; }
-  .day-detail { margin-top: 12px; border-top: 0.5px solid #e8e7e0; padding-top: 12px; display: block; }
-  .detail-q { font-size: 12px; color: #9b9b93; margin-bottom: 2px; margin-top: 10px; }
-  .detail-a { font-size: 13px; color: #1a1a18; }
-  .empty-state { text-align: center; padding: 3rem 1rem; color: #9b9b93; font-size: 14px; }
-  .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 11px; background: #eaf3de; color: #3b6d11; }
-  .badge.partial { background: #fef3e2; color: #a06000; }
-  .badge.aborted { background: #faeeda; color: #854f0b; }
-  .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.5rem; }
-  .metric { background: #f1efe8; border-radius: 8px; padding: 1rem; }
-  .metric-label { font-size: 12px; color: #6b6b65; margin-bottom: 4px; }
-  .metric-val { font-size: 22px; font-weight: 500; }
-  .section-label { font-size: 12px; font-weight: 500; color: #6b6b65; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; margin-top: 1.5rem; }
-  .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 1rem; }
-  .pill { font-size: 12px; padding: 4px 12px; border-radius: 20px; background: #e6f1fb; color: #0c447c; }
-  .pill-gray { font-size: 12px; padding: 5px 12px; border-radius: 8px; background: #f1efe8; color: #6b6b65; }
-  .portrait-box { background: #f1efe8; border-radius: 12px; padding: 1.25rem 1.5rem; font-size: 14px; line-height: 1.75; margin-bottom: 1rem; }
-  .abort-box { background: #f1efe8; border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
-  .abort-row { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; }
-  .quote-block { border-left: 3px solid #b4b2a9; padding: 1rem 1.25rem; margin-bottom: 2rem; font-style: italic; font-size: 15px; color: #444441; line-height: 1.75; }
-  .quote-source { font-size: 12px; color: #9b9b93; margin-top: 8px; font-style: normal; }
-  .link-btn { display: inline-block; padding: 10px 20px; border-radius: 8px; border: 0.5px solid #b4b2a9; font-size: 13px; color: #1a1a18; text-decoration: none; background: #fff; }
-  .link-btn:hover { background: #f1efe8; }
-  #importInput { display: none; }
-  .writing-wrap { position: relative; display: flex; flex-direction: column; }
-  .writing-textarea { resize: none; border-radius: 8px 8px 0 0 !important; border-bottom: none !important; }
-  .resize-handle { width: 100%; height: 24px; display: flex; align-items: center; justify-content: center; cursor: ns-resize; background: #f1efe8; border: 0.5px solid #ccccc4; border-top: none; border-radius: 0 0 8px 8px; user-select: none; flex-shrink: 0; }
-  .resize-handle::after { content: ''; display: block; width: 36px; height: 4px; border-radius: 2px; background: #b4b2a9; }
-  .resize-handle:hover { background: #e8e6de; }
-  .resize-handle:hover::after { background: #6b6b65; }
-  .sf-card { background: #f1efe8; border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 1rem; border-left: 3px solid #378add; }
-  .sf-label { font-size: 12px; color: #185fa5; margin-bottom: 4px; font-weight: 500; }
+  .header { margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid var(--ink); }
+  .header-top { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px; }
+  .title { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 400; }
+  .title em { font-style: italic; color: var(--accent); }
+  .date-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
+  .save-status { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); margin-top: 4px; min-height: 16px; }
+  .save-status.saved { color: var(--green); }
+  .save-status.saving { color: var(--accent); }
+  .progress-wrap { margin: 1.25rem 0 0; }
+  .progress-bar { height: 3px; background: var(--warm); border-radius: 2px; overflow: hidden; margin-bottom: 6px; }
+  .progress-fill { height: 100%; background: var(--accent-mid); border-radius: 2px; transition: width 0.4s ease; }
+  .progress-text { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 0.1em; }
+  .tabs { display: flex; gap: 0; margin-bottom: 1.5rem; border-bottom: 1px solid var(--rule); }
+  .tab { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; padding: 8px 16px; cursor: pointer; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.2s; }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* Notes */
+  .notes-wrap { margin-top: 1.5rem; }
+  .notes-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .notes-textarea { width: 100%; background: #fff; border: 0.5px solid var(--rule); border-radius: 10px; padding: 12px 14px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 300; color: var(--ink); line-height: 1.7; resize: vertical; min-height: 100px; outline: none; transition: border-color 0.2s; }
+  .notes-textarea:focus { border-color: var(--accent-mid); }
+  .notes-textarea::placeholder { color: var(--rule); }
+
+  /* History */
+  .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1.5rem; }
+  .stat-card { background: #fff; border: 0.5px solid var(--rule); border-radius: 10px; padding: 14px; text-align: center; }
+  .stat-val { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; color: var(--accent); }
+  .stat-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
+  .history-day-labels { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 8px; }
+  .day-label-h { font-family: 'DM Mono', monospace; font-size: 9px; text-align: center; color: var(--muted); letter-spacing: 0.05em; }
+  .history-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 1rem; }
+  .history-day { aspect-ratio: 1; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; position: relative; transition: transform 0.15s; }
+  .history-day:hover { transform: scale(1.08); }
+  .history-day.empty { background: transparent; cursor: default; pointer-events: none; }
+  .history-day.empty:hover { transform: none; }
+  .history-day.no-data { background: var(--warm); border: 0.5px solid var(--rule); }
+  .history-day.partial { background: #c8e6a0; border: 0.5px solid #a8cc80; }
+  .history-day.complete { background: var(--green); border: 0.5px solid var(--green); }
+  .history-day.today { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .history-day-num { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); }
+  .history-day.complete .history-day-num { color: white; }
+  .history-day.partial .history-day-num { color: var(--green); }
+  .history-day-pct { font-size: 9px; color: var(--muted); }
+  .history-day.complete .history-day-pct { color: rgba(255,255,255,0.8); }
+  .history-legend { display: flex; gap: 16px; margin-bottom: 1.5rem; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); }
+  .legend-dot { width: 12px; height: 12px; border-radius: 3px; }
+
+  /* Day detail modal */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; padding: 2rem 1rem; overflow-y: auto; }
+  .modal-overlay.visible { display: flex; align-items: flex-start; justify-content: center; }
+  .modal { background: var(--bg); max-width: 580px; width: 100%; border-radius: 14px; padding: 1.5rem; position: relative; margin: auto; }
+  .modal-close { position: absolute; top: 14px; right: 14px; background: none; border: 0.5px solid var(--rule); border-radius: 6px; width: 28px; height: 28px; cursor: pointer; font-size: 14px; color: var(--muted); display: flex; align-items: center; justify-content: center; }
+  .modal-close:hover { background: var(--warm); }
+  .modal-date { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+  .modal-title { font-family: 'Playfair Display', serif; font-size: 22px; margin-bottom: 1rem; }
+  .modal-progress { height: 3px; background: var(--warm); border-radius: 2px; margin-bottom: 1rem; overflow: hidden; }
+  .modal-progress-fill { height: 100%; border-radius: 2px; }
+  .modal-tasks { display: flex; flex-direction: column; gap: 6px; margin-bottom: 1rem; }
+  .modal-task { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: #fff; border: 0.5px solid var(--rule); border-radius: 8px; }
+  .modal-task.done { background: var(--green-light); border-color: #b3d48a; }
+  .modal-task-check { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid var(--rule); display: flex; align-items: center; justify-content: center; font-size: 10px; flex-shrink: 0; }
+  .modal-task.done .modal-task-check { background: var(--green); border-color: var(--green); color: white; }
+  .modal-task-name { font-size: 13px; color: var(--ink); }
+  .modal-task.done .modal-task-name { text-decoration: line-through; color: var(--green); }
+  .modal-calls { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted); margin-bottom: 1rem; }
+  .modal-notes { width: 100%; background: var(--warm); border: 0.5px solid var(--rule); border-radius: 8px; padding: 10px 12px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--ink); line-height: 1.6; min-height: 80px; resize: vertical; outline: none; }
+  .modal-notes:focus { border-color: var(--accent-mid); }
+  .modal-notes-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; }
+
+  /* Tasks */
+  .time-block { margin-bottom: 1.75rem; }
+  .time-header { display: flex; align-items: center; gap: 12px; margin-bottom: 0.75rem; }
+  .time-badge { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; padding: 4px 10px; border-radius: 4px; flex-shrink: 0; }
+  .badge-morning { background: var(--accent-light); color: var(--accent); }
+  .badge-calls { background: var(--orange-light); color: var(--orange); }
+  .badge-recreation { background: var(--green-light); color: var(--green); }
+  .badge-prospecting { background: #fdf4e3; color: #7a5200; }
+  .badge-mail { background: #f3e8ff; color: #6b21a8; }
+  .badge-evening { background: var(--warm); color: var(--muted); }
+  .time-title { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 400; }
+  .time-subtitle { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .task { background: #fff; border: 0.5px solid var(--rule); border-radius: 10px; padding: 11px 14px; margin-bottom: 7px; display: flex; align-items: flex-start; gap: 11px; cursor: pointer; transition: border-color 0.2s, background 0.2s; user-select: none; }
+  .task:hover { border-color: #888780; }
+  .task.done { background: var(--green-light); border-color: #b3d48a; }
+  .task.done .task-title { text-decoration: line-through; color: var(--green); }
+  .task.done .task-desc { color: #7aaa3a; }
+  .task-check { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--rule); background: var(--bg); flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin-top: 2px; transition: all 0.2s; font-size: 11px; }
+  .task.done .task-check { background: var(--green); border-color: var(--green); color: white; }
+  .task-content { flex: 1; }
+  .task-title { font-size: 14px; font-weight: 500; color: var(--ink); margin-bottom: 2px; line-height: 1.4; }
+  .task-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+  .task-counter { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+  .counter-btn { width: 26px; height: 26px; border-radius: 6px; border: 0.5px solid var(--rule); background: var(--bg); color: var(--ink); font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-family: inherit; }
+  .counter-btn:hover { background: var(--warm); }
+  .counter-val { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: var(--accent); min-width: 28px; text-align: center; }
+  .counter-target { font-size: 12px; color: var(--muted); }
+  .counter-bar { flex: 1; height: 3px; background: var(--warm); border-radius: 2px; overflow: hidden; }
+  .counter-fill { height: 100%; background: var(--accent-mid); border-radius: 2px; transition: width 0.3s; }
+  .branchen-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; margin-top: 8px; }
+  .branche-tag { font-size: 11px; color: var(--muted); background: var(--warm); border: 0.5px solid var(--rule); border-radius: 5px; padding: 5px 8px; cursor: pointer; transition: all 0.15s; text-align: center; }
+  .branche-tag:hover, .branche-tag.searched { border-color: var(--accent-mid); color: var(--accent); background: var(--accent-light); }
+  hr { border: none; border-top: 0.5px solid var(--rule); margin: 1.25rem 0; }
+  .complete-banner { display: none; background: var(--green-light); border: 0.5px solid #b3d48a; border-radius: 12px; padding: 1.5rem; text-align: center; margin-top: 1.5rem; }
+  .complete-banner.visible { display: block; }
+  .complete-banner .big { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--green); margin-bottom: 6px; }
+  .complete-banner p { font-size: 13px; color: #5a8a25; line-height: 1.6; }
+  .reset-btn { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); background: none; border: 0.5px solid var(--rule); padding: 5px 10px; border-radius: 6px; cursor: pointer; margin-top: 4px; }
+  .reset-btn:hover { background: var(--warm); }
+  .footer { margin-top: 3rem; padding-top: 1rem; border-top: 0.5px solid var(--rule); font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--rule); display: flex; justify-content: space-between; }
 </style>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 <div class="container">
-
-  <div class="top-row">
-    <div>
-      <div class="greeting" id="greetingText" onclick="showRitual()" style="cursor:pointer;">Guten Morgen</div>
-      <div class="subtitle" id="subtitleText"></div>
-    </div>
-    <div class="top-btns">
-      <button class="icon-btn" onclick="showView('verlauf')">◎ Verlauf</button>
-      <button class="icon-btn" onclick="showView('profil')">○ Profil</button>
-      <button class="icon-btn" onclick="showView('klarheit')">☽ Klarheit</button>
-      <button class="icon-btn" onclick="showView('einstellungen')">💾 Speichern & Backup</button>
-      <input type="file" id="importInput" accept=".json" onchange="importJSON(event)">
-      <div id="folderIndicator" style="display:none;font-size:12px;color:#3b6d11;background:#eaf3de;padding:4px 10px;border-radius:6px;align-items:center;gap:4px;">✓ <span id="folderName"></span></div>
-      <div id="syncStatus" style="font-size:12px;color:#378add;min-width:90px;text-align:right;"></div>
-    </div>
-  </div>
-
-  <div class="ritual-view" id="ritualView">
-    <div id="importBanner" style="display:none;background:#faeeda;border-radius:10px;padding:12px 16px;margin-bottom:1.5rem;font-size:13px;color:#633806;line-height:1.65;">
-      <strong>Hast du bereits Einträge?</strong> Importiere deine <em>morgenritual_daten.json</em> unter <strong>Speichern & Backup → Backup importieren</strong> um deine früheren Antworten wiederherzustellen.
-      <button onclick="document.getElementById('importBanner').style.display='none'" style="float:right;background:none;border:none;font-size:16px;cursor:pointer;color:#633806;">×</button>
-    </div>
-    <div class="question-card">
-      <div class="q-label">Frage 1</div>
-      <div class="q-text">Wie geht es dir heute?</div>
-      <div class="writing-wrap">
-        <textarea class="q-input writing-textarea" id="q1" rows="2" placeholder="Schreib kurz, wie du dich fühlst..."></textarea>
-        <div class="resize-handle" onmousedown="startResize(event,'q1')"></div>
+  <div class="header">
+    <div class="header-top">
+      <div>
+        <div class="title">Power <em>System</em></div>
+        <div class="date-label" id="dateLabel"></div>
+        <div class="save-status" id="saveStatus"></div>
       </div>
+      <button class="reset-btn" onclick="resetDay()">↺ Reset</button>
     </div>
-    <div class="question-card">
-      <div class="q-label">Frage 2</div>
-      <div class="q-text">Was ist dein Nordstern?</div>
-      <textarea class="q-input" id="q2" rows="2" placeholder="Dein tiefster Antrieb, deine Vision..."></textarea>
-    </div>
-    <div class="question-card">
-      <div class="q-label">Frage 3</div>
-      <div class="q-text">Was möchtest du heute kreieren, das deinem Nordstern entspricht?</div>
-      <textarea class="q-input" id="q3" rows="2" placeholder="Eine konkrete Absicht für heute..."></textarea>
-    </div>
-    <div class="question-card">
-      <div class="q-label">Frage 4</div>
-      <div class="q-text">Wo zeigst du dich heute?</div>
-      <textarea class="q-input" id="q4" rows="2" placeholder="Wo trittst du heute auf, wirst sichtbar, machst einen Schritt..."></textarea>
-    </div>
-    <div class="question-card">
-      <div class="q-label">Frage 5</div>
-      <div class="q-text">Warum ist dein Nordstern heute wichtig für dich?</div>
-      <div class="writing-wrap">
-        <textarea class="q-input writing-textarea" id="q5" rows="2" placeholder="Die Verbindung zum Warum — heute, nicht generell..."></textarea>
-        <div class="resize-handle" onmousedown="startResize(event,'q5')"></div>
-      </div>
-    </div>
-
-    <div class="sf-card">
-      <div class="sf-label">Selbstführung · Denken lenken</div>
-      <div class="q-text">Welcher Satz trägt mich heute?</div>
-      <textarea class="q-input" id="q6" rows="2" placeholder="Ein innerer Anker — dein eigener Satz, nicht von außen..."></textarea>
-    </div>
-    <div class="sf-card">
-      <div class="sf-label">Selbstführung · Energie planen</div>
-      <div class="q-text">Was freut mich heute?</div>
-      <textarea class="q-input" id="q7" rows="2" placeholder="Ein Moment, eine Aufgabe, ein Mensch — der mir Energie gibt..."></textarea>
-    </div>
-    <div class="sf-card">
-      <div class="sf-label">Selbstführung · Selbst belohnen</div>
-      <div class="q-text">Was ist heute anstrengend — und was tue ich danach?</div>
-      <textarea class="q-input" id="q8" rows="2" placeholder="z. B. «Steuern erledigen → danach Spaziergang im Park»..."></textarea>
-    </div>
-
-    <div class="question-card" style="background:#fdf6e9;border:0.5px solid #c9a84c;margin-top:0.5rem;">
-      <div class="q-label" style="color:#9b7a1a;">Wunsch — fortlaufend</div>
-      <div class="q-text" style="color:#6b4d00;">Was wünschst du dir?</div>
-      <div style="font-size:12px;color:#9b7a1a;margin-top:4px;margin-bottom:8px;">Sei so spezifisch wie möglich. Je konkreter dein Wunsch, desto klarer dein Weg.</div>
-      <div class="writing-wrap">
-        <textarea class="q-input writing-textarea" id="qw" rows="3" placeholder="Ich wünsche mir konkret..." style="background:#fff;border-color:#c9a84c;color:#1a1a18;font-size:14px;line-height:1.7;"></textarea>
-        <div class="resize-handle" onmousedown="startResize(event,'qw')" style="border-color:#c9a84c;background:#fdf6e9;"></div>
-      </div>
-      <div id="wishSaveMsg" style="font-size:11px;color:#9b7a1a;margin-top:6px;min-height:14px;"></div>
-    </div>
-
-    <hr class="section-divider">
-
-    <div style="margin-bottom:2rem;">
-      <div style="font-size:13px;font-weight:500;color:#1a1a18;margin-bottom:4px;">Kreatives Schreiben</div>
-      <div style="font-size:12px;color:#9b9b93;margin-bottom:12px;">Fortlaufende Dokumente — du schreibst weiter wo du aufgehört hast.</div>
-      <div style="display:flex;gap:8px;margin-bottom:12px;">
-        <button onclick="switchWritingTab('stephen', this)" id="tab-stephen" style="font-size:13px;padding:6px 16px;border-radius:20px;border:0.5px solid #185fa5;background:#e6f1fb;color:#185fa5;cursor:pointer;font-family:inherit;font-weight:500;">Sir Stephen & Me</button>
-        <button onclick="switchWritingTab('comedy', this)" id="tab-comedy" style="font-size:13px;padding:6px 16px;border-radius:20px;border:0.5px solid #b4b2a9;background:transparent;color:#6b6b65;cursor:pointer;font-family:inherit;">Comedy</button>
-        <button onclick="switchWritingTab('creator', this)" id="tab-creator" style="font-size:13px;padding:6px 16px;border-radius:20px;border:0.5px solid #b4b2a9;background:transparent;color:#6b6b65;cursor:pointer;font-family:inherit;">Creator Business</button>
-      </div>
-      <div id="writing-stephen">
-        <div style="font-size:11px;color:#9b9b93;margin-bottom:6px;" id="stephen-meta"></div>
-        <div class="writing-wrap">
-          <textarea id="write-stephen" class="q-input writing-textarea" rows="4" placeholder="Sir Stephen & Me — schreib das erste was kommt..." style="font-size:14px;line-height:1.7;border-radius:8px 8px 0 0;border-bottom:none;"></textarea>
-          <div class="resize-handle" id="handle-stephen" onmousedown="startResize(event,'write-stephen')"></div>
-        </div>
-      </div>
-      <div id="writing-comedy" style="display:none;">
-        <div style="font-size:11px;color:#9b9b93;margin-bottom:6px;" id="comedy-meta"></div>
-        <div class="writing-wrap">
-          <textarea id="write-comedy" class="q-input writing-textarea" rows="4" placeholder="Comedy — ein Gedanke, ein Witz, eine Beobachtung..." style="font-size:14px;line-height:1.7;border-radius:8px 8px 0 0;border-bottom:none;"></textarea>
-          <div class="resize-handle" id="handle-comedy" onmousedown="startResize(event,'write-comedy')"></div>
-        </div>
-      </div>
-      <div id="writing-creator" style="display:none;">
-        <div style="font-size:11px;color:#9b9b93;margin-bottom:6px;" id="creator-meta"></div>
-        <div class="writing-wrap">
-          <textarea id="write-creator" class="q-input writing-textarea" rows="4" placeholder="Creator Business — Ideen, Outreach, Strategien..." style="font-size:14px;line-height:1.7;border-radius:8px 8px 0 0;border-bottom:none;"></textarea>
-          <div class="resize-handle" id="handle-creator" onmousedown="startResize(event,'write-creator')"></div>
-        </div>
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;flex-wrap:wrap;gap:8px;">
-        <span id="writingSaveMsg" style="font-size:12px;color:#9b9b93;"></span>
-        <div style="display:flex;gap:8px;">
-          <button onclick="exportWriting('stephen')" style="font-size:12px;padding:5px 12px;border-radius:6px;border:0.5px solid #b4b2a9;background:transparent;color:#6b6b65;cursor:pointer;font-family:inherit;">Sir Stephen exportieren ↗</button>
-          <button onclick="exportWriting('comedy')" style="font-size:12px;padding:5px 12px;border-radius:6px;border:0.5px solid #b4b2a9;background:transparent;color:#6b6b65;cursor:pointer;font-family:inherit;">Comedy exportieren ↗</button>
-          <button onclick="exportWriting('creator')" style="font-size:12px;padding:5px 12px;border-radius:6px;border:0.5px solid #b4b2a9;background:transparent;color:#6b6b65;cursor:pointer;font-family:inherit;">Creator Business exportieren ↗</button>
-        </div>
-      </div>
-    </div>
-
-    <hr class="section-divider">
-
-    <div style="text-align:right;margin-bottom:1.5rem;min-height:18px;">
-      <span id="autoSaveMsg" style="font-size:12px;color:#9b9b93;margin-right:12px;"></span>
-      <button onclick="exportJSON()" style="font-size:12px;padding:6px 14px;border-radius:8px;border:0.5px solid #b4b2a9;background:transparent;color:#6b6b65;cursor:pointer;font-family:inherit;">💾 Backup exportieren</button>
-    </div>
-
-    <div class="mentor-section">
-      <div class="mentor-label">Wähle deinen ersten Schritt — wessen Energie führt dich heute?</div>
-      <div class="mentor-grid">
-        <div class="mentor-card" onclick="selectMentor('rohn', this)"><div class="mentor-name">Jim Rohn</div><div class="mentor-tag">Lesen & Weisheit</div></div>
-        <div class="mentor-card" onclick="selectMentor('robbins', this)"><div class="mentor-name">Tony Robbins</div><div class="mentor-tag">Energie & Priming</div></div>
-        <div class="mentor-card" onclick="selectMentor('graziosi', this)"><div class="mentor-name">Dean Graziosi</div><div class="mentor-tag">Mindset & Intention</div></div>
-      </div>
-    </div>
-
-    <div class="step-area" id="stepArea" style="display:none;">
+    <div class="progress-wrap">
       <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
-      <div id="stepsContainer"></div>
-      <div class="btn-row">
-        <button class="btn" onclick="prevStep()">Zurück</button>
-        <button class="btn btn-primary" id="nextBtn" onclick="nextStep()">Schritt abgeschlossen</button>
+      <div class="progress-text" id="progressText">Lade...</div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('today')">Heute</div>
+    <div class="tab" onclick="switchTab('history')">Verlauf</div>
+  </div>
+
+  <!-- TODAY -->
+  <div class="tab-content active" id="tab-today">
+
+    <div class="time-block">
+      <div class="time-header"><span class="time-badge badge-morning">06:00 – 10:00</span><div><div class="time-title">Morgen — Deep Work</div><div class="time-subtitle">Morgenritual → alles Schreiben in einem Fluss</div></div></div>
+      <div class="task" id="task-morgenritual" onclick="toggleTask('morgenritual')"><div class="task-check" id="check-morgenritual"></div><div class="task-content"><div class="task-title">Morgenritual abgeschlossen</div><div class="task-desc">Nordstern. Führungsfrage. Intention für den Tag.</div></div></div>
+      <div class="task" id="task-essay" onclick="toggleTask('essay')"><div class="task-check" id="check-essay"></div><div class="task-content"><div class="task-title">Essay / Post geschrieben</div><div class="task-desc" id="essay-desc">Montags: wöchentliches Essay. Andere Tage: Post destillieren.</div></div></div>
+      <div class="task" id="task-stephen" onclick="toggleTask('stephen')"><div class="task-check" id="check-stephen"></div><div class="task-content"><div class="task-title">Sir Stephen & Me</div><div class="task-desc">Eine Szene, ein Satz, eine Idee — fortlaufend weiter.</div></div></div>
+      <div class="task" id="task-comedy" onclick="toggleTask('comedy')"><div class="task-check" id="check-comedy"></div><div class="task-content"><div class="task-title">Comedy</div><div class="task-desc">Ein Gedanke, ein Dialog, eine Beobachtung aus dem Alltag.</div></div></div>
+    </div>
+    <hr>
+    <div class="time-block">
+      <div class="time-header"><span class="time-badge badge-calls">10:00 – 12:00</span><div><div class="time-title">Calls — Pipeline</div><div class="time-subtitle">5–20 Calls täglich je nach Pipeline</div></div></div>
+      <div class="task" id="task-calls" style="cursor:default;">
+        <div class="task-check" id="check-calls" style="cursor:pointer;" onclick="event.stopPropagation();toggleTask('calls')"></div>
+        <div class="task-content">
+          <div class="task-title" style="cursor:pointer;" onclick="toggleTask('calls')">Tagesziel erreicht</div>
+          <div class="task-desc">Zähle deine Calls mit.</div>
+          <div class="task-counter">
+            <button class="counter-btn" onclick="event.stopPropagation();changeCounter(-1)">−</button>
+            <div class="counter-val" id="callCount">0</div>
+            <div class="counter-target">/ <span id="callTarget">10</span></div>
+            <div class="counter-bar"><div class="counter-fill" id="callFill" style="width:0%"></div></div>
+            <button class="counter-btn" onclick="event.stopPropagation();changeCounter(1)">+</button>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-
-  <!-- Verlauf -->
-  <div class="view" id="verlaufView">
-    <div class="view-header">Dein Verlauf</div>
-    <div class="view-sub" id="verlaufSub"></div>
-    <div id="verlaufList"></div>
-    <button class="btn" style="margin-top:1rem;" onclick="showRitual()">← Zurück</button>
-  </div>
-
-  <!-- Profil -->
-  <div class="view" id="profilView">
-    <div class="view-header">Dein Profil</div>
-    <div class="view-sub">Dein wachsendes Selbstportrait</div>
-    <div id="profilContent"></div>
-    <div style="margin-top:2.5rem;background:#e6f1fb;border-radius:16px;padding:2rem;">
-      <div style="font-size:11px;font-weight:500;letter-spacing:0.12em;color:#378add;text-transform:uppercase;margin-bottom:12px;">Tiefe Analyse mit Claude</div>
-      <div style="font-size:18px;font-weight:500;color:#0c447c;margin-bottom:8px;line-height:1.4;">Dein persönliches Portrait</div>
-      <div style="font-size:13px;color:#185fa5;line-height:1.7;margin-bottom:1.5rem;">Je mehr Tage du sammelst, desto klarer das Bild. Claude liest alle deine Einträge und zeigt dir Muster, Stärken und blinde Flecken — ehrlich und ohne Filter.</div>
-      <button onclick="copyAnalyse()" style="background:#185fa5;color:#f9f8f5;border:none;border-radius:8px;padding:11px 20px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;width:100%;">Einträge für Claude kopieren ↗</button>
-      <div id="copyMsg" style="font-size:12px;color:#0c447c;margin-top:8px;display:none;text-align:center;">Kopiert — öffne Claude und füge es ein.</div>
+    <hr>
+    <div class="time-block">
+      <div class="time-header"><span class="time-badge badge-mail">12:00</span><div><div class="time-title">Mails — Mittag</div><div class="time-subtitle">Einmal täglich Posteingang leeren</div></div></div>
+      <div class="task" id="task-mail-mittag" onclick="toggleTask('mail-mittag')"><div class="task-check" id="check-mail-mittag"></div><div class="task-content"><div class="task-title">Mails gelesen & beantwortet</div><div class="task-desc">Wichtiges beantworten, Rest löschen oder archivieren.</div></div></div>
     </div>
-    <br><button class="btn" style="margin-top:1rem;" onclick="showRitual()">← Zurück</button>
-  </div>
-
-  <!-- Klarheit -->
-  <div class="view" id="klarheitView">
-    <div class="view-header">Klarheit</div>
-    <br>
-    <p style="font-size:14px;color:#6b6b65;line-height:1.9;margin-bottom:2rem;">
-      Klarheit ist kein Ziel, das du eines Tages erreichst.<br>
-      Sie ist eine Haltung — die stille Entscheidung, jeden Morgen innezuhalten,<br>
-      bevor die Welt dich mit ihren Fragen überflutet.<br><br>
-      Wer sich selbst kennt, braucht keinen Lärm.<br>
-      Wer seinen Nordstern kennt, verliert sich nicht.<br>
-      Klarheit ist nicht das Fehlen von Chaos —<br>
-      sie ist die Ruhe, die du mitten darin findest.
-    </p>
-    <div class="quote-block">„Dein Geist ist wie Wasser. Wenn er aufgewühlt ist, ist es schwer zu sehen. Aber wenn er still ist, wird alles klar."<div class="quote-source">— Taoistische Weisheit</div></div>
-    <div class="section-label">Mentale Stärke</div>
-    <p style="font-size:13px;color:#6b6b65;margin-bottom:12px;line-height:1.6;">Klarheit beginnt im Körper. Was du isst, wie du atmest, wie du schläfst — das ist das Fundament jedes klaren Gedankens.</p>
-    <a href="https://www.ringana.com/mental-strength/" target="_blank" class="link-btn">RINGANA Mental Strength ↗</a>
-    <br><br>
-    <div class="quote-block">„Die Wurzel aller Gesundheit liegt in der Erde. Die Wurzel aller Klarheit liegt in der Stille. Die Wurzel aller Kraft liegt in der Wahrheit."<div class="quote-source">— Zen-Weisheit</div></div>
-    <div class="section-label">Die Wurzel der Vitalität</div>
-    <p style="font-size:13px;color:#6b6b65;margin-bottom:12px;line-height:1.6;">Wenn der Körper genährt ist, kann der Geist klar sein.</p>
-    <a href="https://therootbrands.com/eu/product/trinity-pack-6/marioleonhardt" target="_blank" class="link-btn">The Root Brands — Trinity Pack ↗</a>
-    <div style="margin-top:3rem;"></div>
-    <button class="btn" onclick="showRitual()">← Zurück</button>
-  </div>
-
-  <!-- Einstellungen -->
-  <div class="view" id="einstellungenView">
-    <div class="view-header">Speichern & Backup</div><br>
-    <div style="background:#fff;border:0.5px solid #d3d1c7;border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1rem;">
-      <div style="font-size:14px;font-weight:500;margin-bottom:8px;">Backup exportieren & importieren</div>
-      <div style="font-size:13px;color:#6b6b65;margin-bottom:12px;line-height:1.6;">Exportiert alle deine Einträge als JSON-Datei. Beim nächsten Öffnen einfach importieren.</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <button class="btn" onclick="exportJSON()">Backup exportieren</button>
-        <button class="btn" onclick="document.getElementById('importInput').click()">Backup importieren</button>
+    <hr>
+    <div class="time-block">
+      <div class="time-header"><span class="time-badge badge-recreation">12:00 – 14:00</span><div><div class="time-title">Re-Creation</div><div class="time-subtitle">Kein Bildschirm. Energie für den Nachmittag.</div></div></div>
+      <div class="task" id="task-fitness" onclick="toggleTask('fitness')"><div class="task-check" id="check-fitness"></div><div class="task-content"><div class="task-title">Fitness — außer Atem kommen</div><div class="task-desc">Einfache Übungen. Intensiv genug dass du merkst du lebst.</div></div></div>
+      <div class="task" id="task-spaziergang" onclick="toggleTask('spaziergang')"><div class="task-check" id="check-spaziergang"></div><div class="task-content"><div class="task-title">Spaziergang & Essen</div><div class="task-desc">Bewegen, denken, auftanken.</div></div></div>
+    </div>
+    <hr>
+    <div class="time-block">
+      <div class="time-header"><span class="time-badge badge-prospecting">14:00 – 17:00</span><div><div class="time-title">Prospecting — Beziehungen aufbauen</div><div class="time-subtitle">2 Stunden LinkedIn. Gezielt. Täglich.</div></div></div>
+      <div class="task" id="task-suche" style="cursor:default;">
+        <div class="task-check" id="check-suche" style="cursor:pointer;" onclick="event.stopPropagation();toggleTask('suche')"></div>
+        <div class="task-content">
+          <div class="task-title" style="cursor:pointer;" onclick="event.stopPropagation();toggleTask('suche')">2h Suche & Kommentare erledigt</div>
+          <div class="task-desc">Gezielt nach Entscheidern in deinen Zielbranchen suchen.</div>
+          <div class="branchen-grid">
+            <div class="branche-tag" id="b1" onclick="event.stopPropagation();searchBranche('Schweizer Privatbank Wealth Management','b1')">🏦 Schweizer Privatbanken</div>
+            <div class="branche-tag" id="b2" onclick="event.stopPropagation();searchBranche('B2B Mittelstand CMO Marketing Leiter Deutschland Schweiz','b2')">🏭 B2B Mittelstand DE/CH</div>
+            <div class="branche-tag" id="b3" onclick="event.stopPropagation();searchBranche('Porsche Consulting Roland Berger Kommunikation Marketing','b3')">📊 Consulting</div>
+            <div class="branche-tag" id="b4" onclick="event.stopPropagation();searchBranche('Leasing Finanzdienstleister Geschäftsführer','b4')">💼 Leasing & Finance</div>
+            <div class="branche-tag" id="b5" onclick="event.stopPropagation();searchBranche('Employer Branding HR Leiter Unternehmen','b5')">👥 Employer Branding</div>
+            <div class="branche-tag" id="b6" onclick="event.stopPropagation();searchBranche('Creator Economy LinkedIn Deutschland Schweiz','b6')">🎯 Creator Economy</div>
+          </div>
+        </div>
       </div>
+      <div class="task" id="task-kommentar" onclick="toggleTask('kommentar')"><div class="task-check" id="check-kommentar"></div><div class="task-content"><div class="task-title">3 strategische Kommentare</div><div class="task-desc">Bei Zielkontakten — inhaltlich, nicht lobend.</div></div></div>
+      <div class="task" id="task-vernetzung" onclick="toggleTask('vernetzung')"><div class="task-check" id="check-vernetzung"></div><div class="task-content"><div class="task-title">5 Vernetzungsanfragen</div><div class="task-desc">Personalisiert — unter 200 Zeichen.</div></div></div>
     </div>
-    <div style="background:#fff;border:0.5px solid #d3d1c7;border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1rem;">
-      <div style="font-size:14px;font-weight:500;margin-bottom:8px;">Alle Daten löschen</div>
-      <div style="font-size:13px;color:#6b6b65;margin-bottom:12px;">Setzt alle Einträge zurück. Erstelle vorher ein Backup.</div>
-      <button class="btn btn-danger" onclick="clearAll()">Alle Daten löschen</button>
+    <hr>
+    <div class="time-block">
+      <div class="time-header"><span class="time-badge badge-mail">18:00</span><div><div class="time-title">Mails — Abend</div><div class="time-subtitle">Letzter Check bevor du abschaltest</div></div></div>
+      <div class="task" id="task-mail-abend" onclick="toggleTask('mail-abend')"><div class="task-check" id="check-mail-abend"></div><div class="task-content"><div class="task-title">Abend-Mails erledigt</div><div class="task-desc">Letzter Check. Dann Postfach zu.</div></div></div>
     </div>
-    <button class="btn" style="margin-top:0.5rem;" onclick="showRitual()">← Zurück</button>
+    <hr>
+    <div class="time-block">
+      <div class="time-header"><span class="time-badge badge-evening">Ab 18:00</span><div><div class="time-title">Abschalten</div><div class="time-subtitle">Lesen. Spaziergang. Ideen kommen von selbst.</div></div></div>
+      <div class="task" id="task-abschalten" onclick="toggleTask('abschalten')"><div class="task-check" id="check-abschalten"></div><div class="task-content"><div class="task-title">Bildschirm aus — Tag abgeschlossen</div><div class="task-desc">Kein LinkedIn. Kein E-Mail. Das Unterbewusstsein arbeitet weiter.</div></div></div>
+    </div>
+
+    <!-- Notes for today -->
+    <div class="notes-wrap">
+      <div class="notes-label">Notizen — Gedanken zum Tag</div>
+      <textarea class="notes-textarea" id="todayNotes" placeholder="Was hat heute funktioniert? Was nicht? Welche Idee kam?" oninput="scheduleNotesSave()"></textarea>
+    </div>
+
+    <div class="complete-banner" id="completeBanner">
+      <div class="big">Tag abgeschlossen.</div>
+      <p>Du hast dich heute selbst geführt.<br>Das zählt mehr als jede perfekte Strategie.</p>
+    </div>
   </div>
 
+  <!-- HISTORY -->
+  <div class="tab-content" id="tab-history">
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-val" id="stat-streak">—</div><div class="stat-label">Tage in Folge</div></div>
+      <div class="stat-card"><div class="stat-val" id="stat-complete">—</div><div class="stat-label">Vollständige Tage</div></div>
+      <div class="stat-card"><div class="stat-val" id="stat-calls">—</div><div class="stat-label">Calls gesamt</div></div>
+    </div>
+    <div class="day-label-h" style="margin-bottom:8px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);">Letzte 30 Tage — klick auf einen Tag für Details</div>
+    <div class="history-day-labels">
+      <div class="day-label-h">Mo</div><div class="day-label-h">Di</div><div class="day-label-h">Mi</div>
+      <div class="day-label-h">Do</div><div class="day-label-h">Fr</div><div class="day-label-h">Sa</div><div class="day-label-h">So</div>
+    </div>
+    <div class="history-grid" id="historyGrid"></div>
+    <div class="history-legend">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Vollständig</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#c8e6a0"></div>Teilweise</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--warm);border:0.5px solid var(--rule)"></div>Keine Daten</div>
+    </div>
+  </div>
+
+  <div class="footer"><span>Leonhardt Partners</span><span>The Human Content Company</span></div>
 </div>
+
+<!-- DAY DETAIL MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModalDirect()">✕</button>
+    <div class="modal-date" id="modalDate"></div>
+    <div class="modal-title" id="modalTitle"></div>
+    <div class="modal-progress"><div class="modal-progress-fill" id="modalProgressFill"></div></div>
+    <div class="modal-calls" id="modalCalls"></div>
+    <div class="modal-tasks" id="modalTasks"></div>
+    <div class="modal-notes-label">Notizen</div>
+    <textarea class="modal-notes" id="modalNotes" placeholder="Gedanken zu diesem Tag..." oninput="scheduleModalNotesSave()"></textarea>
+  </div>
+</div>
+
 <script>
-const STORAGE_KEY = 'morgenritual_tage';
-const mentorNames = { rohn: 'Jim Rohn', robbins: 'Tony Robbins', graziosi: 'Dean Graziosi' };
+  const SUPABASE_URL = 'https://jwnlmgtbanebwcwnqyab.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_SjQKmTwHwW0LeCwV5hfdtw_xqhUZnJy';
+  const TABLE = 'power_system_days';
+  const TASKS = ['morgenritual','essay','stephen','comedy','calls','mail-mittag','fitness','spaziergang','suche','kommentar','vernetzung','mail-abend','abschalten'];
+  const TASK_NAMES = {
+    'morgenritual': 'Morgenritual', 'essay': 'Essay / Post', 'stephen': 'Sir Stephen & Me',
+    'comedy': 'Comedy', 'calls': 'Calls Tagesziel', 'mail-mittag': 'Mails Mittag',
+    'fitness': 'Fitness', 'spaziergang': 'Spaziergang & Essen', 'suche': '2h Suche & Kommentare',
+    'kommentar': '3 Kommentare', 'vernetzung': '5 Vernetzungsanfragen',
+    'mail-abend': 'Mails Abend', 'abschalten': 'Abschalten'
+  };
+  const CALL_TARGET = 10;
+  const todayKey = new Date().toISOString().split('T')[0];
 
-// ── Supabase ──────────────────────────────────────────────────────
-var SB_URL  = 'https://jwnlmgtbanebwcwnqyab.supabase.co';
-var SB_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp3bmxtZ3RiYW5lYndjd25xeWFiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAxMzQyOTcsImV4cCI6MjA5NTcxMDI5N30.BQADGyIJLRb2k1x7O8Howei2zTbxyion-rpveXeMuAg';
-var sb = window.supabase ? window.supabase.createClient(SB_URL, SB_KEY) : null;
+  let state = { day_key: todayKey, done: {}, calls: 0, searched: [], notes: '' };
+  let historyData = [];
+  let saveTimeout = null;
+  let notesSaveTimeout = null;
+  let modalDayKey = null;
+  let modalNotesSaveTimeout = null;
 
-async function syncDay(key, data) {
-  if (!sb) return;
-  try {
-    var { error } = await sb.from('morgenritual_days').upsert({ day_key: key, antworten: data }, { onConflict: 'day_key' });
-    if (!error) showSyncMsg('☁ Synchronisiert');
-  } catch(e) {}
-}
-async function loadFromSupabase() {
-  if (!sb) return;
-  try {
-    showSyncMsg('☁ Lade...');
-    var { data, error } = await sb.from('morgenritual_days').select('*').order('day_key', { ascending: false });
-    if (error || !data || !data.length) { showSyncMsg(''); return; }
-    var changed = false;
-    data.forEach(function(row) {
-      if (row.day_key && row.antworten && !tage[row.day_key]) { tage[row.day_key] = row.antworten; changed = true; }
+  document.getElementById('dateLabel').textContent = new Date().toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  if (new Date().getDay() === 1) document.getElementById('essay-desc').textContent = 'Heute ist Montag — Essay-Tag. 800–1.500 Wörter. Ein Standpunkt.';
+
+  loadFromSupabase();
+
+  function switchTab(tab) {
+    document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', ['today','history'][i] === tab));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    document.getElementById('tab-' + tab).classList.add('active');
+    if (tab === 'history') renderHistory();
+  }
+
+  async function apiGet(filter) {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}?${filter}&select=*`, {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
     });
-    if (changed) localStorage.setItem(STORAGE_KEY, JSON.stringify(tage));
-    showSyncMsg('☁ ' + data.length + ' Tage geladen');
-    setTimeout(function() { showSyncMsg(''); }, 4000);
-  } catch(e) { showSyncMsg(''); }
-}
-function showSyncMsg(msg) { var el = document.getElementById('syncStatus'); if (el) el.textContent = msg; }
-
-const rituals = {
-  rohn: [
-    { title: "Stille & Ankommen", desc: "5 Minuten in vollständiger Stille sitzen. Kein Handy, keine Gedanken an den Tag.", source: "Jim Rohn — Stille ist der Anfang aller Weisheit", mins: 5 },
-    { title: "Dankbarkeit notieren", desc: "Schreibe 3 Dinge auf, für die du heute dankbar bist.", source: "Jim Rohn — Tagebuch als strategisches Werkzeug", mins: 5 },
-    { title: "Lesen & Lernen", desc: "10–15 Minuten in einem Buch lesen. Philosophie, Biografie oder Strategie.", source: "Jim Rohn — Miss a meal, but not your reading", mins: 12 },
-    { title: "Spaziergang & Bewegung", desc: "15–20 Minuten ruhig gehen. Nicht als Sport — als Denkzeit.", source: "Jim Rohn — Körper und Geist in Einklang", mins: 15 },
-    { title: "Absicht setzen", desc: "Notiere deine eine Hauptabsicht für heute.", source: "Dean Graziosi — Intention vor Aktion", mins: 5 },
-    { title: "Tagebuch schreiben", desc: "10 Minuten schreiben — was beschäftigt dich, was hast du gestern gelernt?", source: "Jim Rohn — Jahrzehntelange tägliche Praxis", mins: 10 }
-  ],
-  robbins: [
-    { title: "Kaltes Wasser", desc: "Direkt nach dem Aufwachen: kalt duschen oder ins Eisbad.", source: "Tony Robbins — Tägliches Ritual", mins: 5 },
-    { title: "Priming-Atmung", desc: "30 kraftvolle Atemzüge (Kapalbhati). Arme bei Einatmen hoch, bei Ausatmen runter.", source: "Tony Robbins — Priming", mins: 5 },
-    { title: "Dankbarkeits-Visualisierung", desc: "3 Momente tief visualisieren, für die du dankbar bist. Fühle es wirklich.", source: "Tony Robbins — Priming-Meditation", mins: 5 },
-    { title: "Stille & Ankommen", desc: "5 Minuten ruhig sitzen. Den aufgebauten Zustand festigen.", source: "Jim Rohn — Stille als Fundament", mins: 5 },
-    { title: "Absicht setzen", desc: "Was ist deine eine Hauptabsicht für heute?", source: "Dean Graziosi — Tägliche Intention", mins: 5 },
-    { title: "Lesen", desc: "10 Minuten lesen.", source: "Jim Rohn — Tägliches Lernen", mins: 10 },
-    { title: "Handy-freie Zone", desc: "Erst nach deinem Ritual: Nachrichten, E-Mails, Social Media.", source: "Alle drei — Innerer Zustand schützen", mins: 0 }
-  ],
-  graziosi: [
-    { title: "Stille & Ankommen", desc: "5 Minuten bevor du das Handy anschaust.", source: "Dean Graziosi — Bewusster Start", mins: 5 },
-    { title: "Absicht setzen", desc: "Was will ich heute erreichen, und warum ist es mir wichtig?", source: "Dean Graziosi — Daily Mindset Reset", mins: 5 },
-    { title: "Dankbarkeit notieren", desc: "3 Dinge, für die du dankbar bist.", source: "Graziosi & Rohn — Dankbarkeit als Anker", mins: 5 },
-    { title: "Lesen & Lernen", desc: "10–15 Minuten lesen.", source: "Jim Rohn — Bildung als Selbstrespekt", mins: 12 },
-    { title: "Bewegung", desc: "10–20 Minuten Bewegung.", source: "Dean Graziosi & Tony Robbins — Körper aktivieren", mins: 15 },
-    { title: "Priming-Atmung", desc: "Kurze Atemsequenz: 10 kraftvolle Züge, dann 1 Minute ruhig atmen.", source: "Tony Robbins — Priming, vereinfacht", mins: 3 },
-    { title: "Handy-freie Zone", desc: "Das Ritual ist abgeschlossen. Jetzt erst: Außenwelt rein lassen.", source: "Alle drei — Schutz des Morgens", mins: 0 }
-  ]
-};
-
-let tage = loadTage();
-let selectedMentor = null;
-let currentStep = 0;
-let steps = [];
-let stepNotes = {};
-let stepTimes = {};
-let timerInterval = null;
-let timerRemaining = 0;
-let timerTotal = 0;
-let timerRunning = false;
-let folderHandle = null;
-const todayKey = new Date().toISOString().slice(0, 10);
-
-function loadTage() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch(e) { return {}; } }
-function saveTage() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(tage));
-  if (tage[todayKey]) syncDay(todayKey, tage[todayKey]);
-  if (folderHandle) saveToFolder(true);
-}
-function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-document.getElementById('greetingText').textContent = 'Guten Morgen';
-document.getElementById('subtitleText').textContent = new Date().toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-
-(function() {
-  var today = tage[todayKey];
-  if (today && today.antworten) {
-    var a = today.antworten;
-    ['q1','q2','q3','q4','q5','q6','q7','q8'].forEach(function(id) { if (a[id]) document.getElementById(id).value = a[id]; });
-    if (Object.values(a).some(function(v){return v;})) {
-      var msg = document.getElementById('autoSaveMsg');
-      if (msg) msg.textContent = '✓ Heute bereits ausgefüllt';
-    }
-  }
-  if (today && today.stepTimes) stepTimes = today.stepTimes;
-  if (today && today.stepNotes) stepNotes = today.stepNotes;
-})();
-
-loadFromSupabase();
-if (Object.keys(tage).length === 0) document.getElementById('importBanner').style.display = 'block';
-
-function showView(name) {
-  document.getElementById('ritualView').classList.add('hidden');
-  ['verlauf','profil','klarheit','einstellungen'].forEach(function(v) { document.getElementById(v+'View').classList.remove('active'); });
-  document.getElementById(name+'View').classList.add('active');
-  if (name === 'verlauf') renderVerlauf();
-  if (name === 'profil') renderProfil();
-}
-function showRitual() {
-  document.getElementById('ritualView').classList.remove('hidden');
-  ['verlauf','profil','klarheit','einstellungen'].forEach(function(v) { document.getElementById(v+'View').classList.remove('active'); });
-}
-
-function selectMentor(key, el) {
-  document.querySelectorAll('.mentor-card').forEach(function(c) { c.classList.remove('selected'); });
-  el.classList.add('selected');
-  selectedMentor = key; steps = rituals[key]; currentStep = 0;
-  var today = tage[todayKey];
-  stepNotes = (today && today.stepNotes) ? today.stepNotes : {};
-  stepTimes = (today && today.stepTimes) ? today.stepTimes : {};
-  clearTimer(); autoSave(); renderSteps();
-  document.getElementById('stepArea').style.display = 'block';
-  document.getElementById('stepArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
-function renderSteps() {
-  var container = document.getElementById('stepsContainer');
-  container.innerHTML = '';
-  var pct = Math.round((currentStep / steps.length) * 100);
-  document.getElementById('progressFill').style.width = pct + '%';
-  if (currentStep >= steps.length) {
-    container.innerHTML = '<div class="complete-msg"><div class="big">🌅</div>Dein Morgenritual ist abgeschlossen.<br>Du bist bereit für deinen Nordstern.</div>';
-    document.getElementById('progressFill').style.width = '100%';
-    saveToday(true); return;
-  }
-  saveToday(false);
-  var currentTitle = steps[currentStep].title;
-  var recentKeys = Object.keys(tage).sort(function(a,b){return b.localeCompare(a);}).slice(0,14);
-  var abortCount = recentKeys.reduce(function(sum,k) {
-    var t = tage[k];
-    if (t.aborts) return sum + t.aborts.filter(function(a){return a.step===currentTitle;}).length;
-    if (t.abortedAt===currentTitle) return sum+1;
-    return sum;
-  }, 0);
-  var driftHtml = abortCount>=3 ? '<div class="drift-hint"><strong>Du brichst hier öfter ab ('+abortCount+'x).</strong><br>Versuch: Schritt kürzen, Reihenfolge ändern, oder bewusst weitermachen.</div>' : '';
-
-  steps.forEach(function(s, i) {
-    var div = document.createElement('div');
-    div.className = 'step-card' + (i===currentStep?' active':i<currentStep?' done':'');
-    var inner = '<div class="step-num">'+(i<currentStep?'✓':i+1)+'</div><div style="flex:1;">';
-    inner += '<div class="step-title">'+s.title+'</div>';
-    if (i<currentStep) {
-      var st = stepTimes[i];
-      if (st) { var p=Math.round((st.spent/st.planned)*100); var col=p>=80?'#3b6d11':'#854f0b'; inner+='<div style="font-size:11px;color:'+col+';margin-top:3px;">'+fmtTime(st.spent)+' von '+fmtTime(st.planned)+'</div>'; }
-      inner+='<button onclick="repeatStep('+i+')" style="margin-top:6px;font-size:11px;color:#9b9b93;background:transparent;border:none;cursor:pointer;padding:0;font-family:inherit;">↺ Nochmal</button>';
-    }
-    if (i===currentStep) {
-      inner+='<div class="step-desc">'+s.desc+'</div><div class="step-source">'+s.source+'</div>';
-      if (s.title.indexOf('Dankbarkeit')>=0) {
-        var saved=stepNotes[i]||['','',''];
-        inner+='<div style="display:flex;flex-direction:column;gap:6px;margin-top:10px;">';
-        inner+='<input class="step-input" type="text" placeholder="Ich bin dankbar für..." value="'+esc(saved[0])+'" onchange="saveNote('+i+',0,this.value)">';
-        inner+='<input class="step-input" type="text" placeholder="Ich bin dankbar für..." value="'+esc(saved[1])+'" onchange="saveNote('+i+',1,this.value)">';
-        inner+='<input class="step-input" type="text" placeholder="Ich bin dankbar für..." value="'+esc(saved[2])+'" onchange="saveNote('+i+',2,this.value)">';
-        inner+='</div>';
-      }
-      if (s.title.indexOf('Lesen')>=0) {
-        var savedL=(stepNotes[i]&&typeof stepNotes[i]==='object'&&!Array.isArray(stepNotes[i]))?stepNotes[i]:{buch:'',warum:''};
-        inner+='<div style="display:flex;flex-direction:column;gap:6px;margin-top:10px;">';
-        inner+='<input class="step-input" type="text" placeholder="Was liest du?" value="'+esc(savedL.buch||'')+'" oninput="saveNoteL('+i+',\'buch\',this.value)">';
-        inner+='<textarea class="step-textarea" rows="2" placeholder="Warum liest du das?" oninput="saveNoteL('+i+',\'warum\',this.value)">'+esc(savedL.warum||'')+'</textarea>';
-        inner+='</div>';
-      }
-      inner+=driftHtml;
-      if (s.mins>0) inner+=buildTimerHTML(s.mins);
-    }
-    inner+='</div>';
-    div.innerHTML=inner; container.appendChild(div);
-  });
-  var s=steps[currentStep];
-  if (s&&s.mins>0) { timerRemaining=s.mins*60; timerTotal=timerRemaining; timerRunning=false; updateTimerDisplay(); }
-}
-
-function saveNote(idx,pos,val) { if(!Array.isArray(stepNotes[idx]))stepNotes[idx]=['','','']; stepNotes[idx][pos]=val; saveToday(false); }
-function saveNoteL(idx,key,val) { if(typeof stepNotes[idx]!=='object'||Array.isArray(stepNotes[idx]))stepNotes[idx]={buch:'',warum:''}; stepNotes[idx][key]=val; saveToday(false); }
-
-function buildTimerHTML(mins) {
-  return '<div class="timer-block"><div class="timer-display" id="timerDisplay">'+fmtTime(mins*60)+'</div><div class="timer-progress"><div class="timer-progress-fill" id="timerBar" style="width:100%"></div></div><div class="timer-btns"><button class="tbtn start" id="timerStartBtn" onclick="toggleTimer()">▶ Start</button><button class="tbtn" onclick="resetTimer('+mins+')">↺</button></div></div>';
-}
-function fmtTime(secs) { var m=Math.floor(secs/60),s=secs%60; return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0'); }
-function toggleTimer() { timerRunning?pauseTimer():startTimer(); }
-function startTimer() {
-  if(timerRemaining<=0)return; timerRunning=true;
-  var btn=document.getElementById('timerStartBtn'); if(btn)btn.textContent='⏸ Pause';
-  timerInterval=setInterval(function() {
-    timerRemaining--; updateTimerDisplay();
-    if(timerRemaining<=0) {
-      clearInterval(timerInterval); timerRunning=false;
-      var d=document.getElementById('timerDisplay'); if(d){d.textContent='✓ Fertig';d.classList.add('done');}
-      var b=document.getElementById('timerStartBtn'); if(b){b.textContent='✓ Fertig';b.disabled=true;}
-      playTimerDoneSound();
-    }
-  },1000);
-}
-function pauseTimer() { clearInterval(timerInterval); timerRunning=false; var btn=document.getElementById('timerStartBtn'); if(btn)btn.textContent='▶ Start'; }
-function resetTimer(mins) { clearInterval(timerInterval); timerRunning=false; timerRemaining=mins*60; timerTotal=timerRemaining; var d=document.getElementById('timerDisplay'); if(d){d.textContent=fmtTime(timerRemaining);d.classList.remove('done');} var b=document.getElementById('timerStartBtn'); if(b){b.textContent='▶ Start';b.disabled=false;} updateTimerDisplay(); }
-function clearTimer() { clearInterval(timerInterval); timerRunning=false; timerRemaining=0; timerTotal=0; }
-function updateTimerDisplay() { var d=document.getElementById('timerDisplay'),bar=document.getElementById('timerBar'); if(d)d.textContent=fmtTime(timerRemaining); if(bar&&timerTotal>0)bar.style.width=Math.round((timerRemaining/timerTotal)*100)+'%'; }
-function playTimerDoneSound() { try { var ctx=new(window.AudioContext||window.webkitAudioContext)(); [440,528,660].forEach(function(f,i){var o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,ctx.currentTime+i*.3);g.gain.linearRampToValueAtTime(.22,ctx.currentTime+i*.3+.05);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+i*.3+1.2);o.start(ctx.currentTime+i*.3);o.stop(ctx.currentTime+i*.3+1.3);}); } catch(e){} }
-function playCompletionEffect() {
-  var fill=document.getElementById('progressFill'); if(fill){fill.style.background='#3b6d11';setTimeout(function(){fill.style.background='#378add';},400);}
-  try{var ctx=new(window.AudioContext||window.webkitAudioContext)();[523,659,784].forEach(function(f,i){var o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,ctx.currentTime+i*.08);g.gain.linearRampToValueAtTime(.18,ctx.currentTime+i*.08+.05);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+i*.08+.5);o.start(ctx.currentTime+i*.08);o.stop(ctx.currentTime+i*.08+.6);});}catch(e){}
-}
-function repeatStep(idx) { clearTimer(); currentStep=idx; renderSteps(); }
-
-function nextStep() {
-  if(currentStep<steps.length) {
-    var s=steps[currentStep],plannedSecs=s.mins*60,spentSecs=plannedSecs>0?(plannedSecs-timerRemaining):0;
-    if(plannedSecs>0&&spentSecs>0) { if(!stepTimes[currentStep])stepTimes[currentStep]={title:s.title,planned:plannedSecs,attempts:[]}; stepTimes[currentStep].attempts.push(spentSecs); stepTimes[currentStep].spent=spentSecs; }
-    clearTimer(); currentStep++; playCompletionEffect(); renderSteps(); saveToday(currentStep>=steps.length);
-  }
-}
-function prevStep() { if(currentStep>0){clearTimer();currentStep--;renderSteps();saveToday(false);} }
-
-function saveToday(completed) {
-  var existing=tage[todayKey]||{};
-  tage[todayKey]={datum:todayKey,mentor:selectedMentor||existing.mentor||null,stepsTotal:steps.length||existing.stepsTotal||0,stepsDone:currentStep,completed:completed,
-    antworten:{q1:document.getElementById('q1').value,q2:document.getElementById('q2').value,q3:document.getElementById('q3').value,q4:document.getElementById('q4').value,q5:document.getElementById('q5').value,q6:document.getElementById('q6').value,q7:document.getElementById('q7').value,q8:document.getElementById('q8').value},
-    stepNotes:stepNotes,stepTimes:stepTimes,abortedAt:existing.abortedAt||null,aborts:existing.aborts||[],savedAt:new Date().toISOString()};
-  saveTage();
-}
-
-function autoSave() {
-  var key=todayKey,existing=tage[key]||{};
-  if(!tage[key])tage[key]={datum:key,mentor:existing.mentor||null,stepsTotal:existing.stepsTotal||0,stepsDone:existing.stepsDone||0,completed:false,antworten:{},savedAt:new Date().toISOString()};
-  tage[key].antworten={q1:document.getElementById('q1').value,q2:document.getElementById('q2').value,q3:document.getElementById('q3').value,q4:document.getElementById('q4').value,q5:document.getElementById('q5').value,q6:document.getElementById('q6').value,q7:document.getElementById('q7').value,q8:document.getElementById('q8').value};
-  if(selectedMentor)tage[key].mentor=selectedMentor;
-  tage[key].savedAt=new Date().toISOString();
-  localStorage.setItem(STORAGE_KEY,JSON.stringify(tage));
-  var msg=document.getElementById('autoSaveMsg');
-  if(msg){var now=new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});msg.textContent='✓ Gespeichert um '+now;clearTimeout(msg._t);msg._t=setTimeout(function(){msg.textContent='';},4000);}
-}
-['q1','q2','q3','q4','q5','q6','q7','q8'].forEach(function(id){document.getElementById(id).addEventListener('blur',autoSave);});
-
-function startResize(e,id) {
-  e.preventDefault();var ta=document.getElementById(id),startY=e.clientY,startH=ta.offsetHeight;
-  function onMove(ev){ta.style.height=Math.max(80,startH+ev.clientY-startY)+'px';}
-  function onUp(){document.removeEventListener('mousemove',onMove);document.removeEventListener('mouseup',onUp);}
-  document.addEventListener('mousemove',onMove);document.addEventListener('mouseup',onUp);
-}
-
-// ── Wunsch ──────────────────────────────────────────────────────
-var WISHES_KEY='morgenritual_wishes';
-function loadWish(){try{return localStorage.getItem(WISHES_KEY)||'';}catch(e){return '';}}
-function saveWish(val){
-  localStorage.setItem(WISHES_KEY,val);
-  var msg=document.getElementById('wishSaveMsg');
-  if(msg){msg.textContent='✓ Wunsch gespeichert';clearTimeout(msg._t);msg._t=setTimeout(function(){msg.textContent='';},3000);}
-}
-(function(){var w=loadWish();if(w)document.getElementById('qw').value=w;})();
-document.getElementById('qw').addEventListener('input',function(){saveWish(this.value);});
-
-// ── Kreatives Schreiben ──────────────────────────────────────────
-var WRITING_KEY='morgenritual_writing';
-var writing=loadWriting();
-function loadWriting(){try{return JSON.parse(localStorage.getItem(WRITING_KEY))||{};}catch(e){return {};}}
-function saveWriting(){localStorage.setItem(WRITING_KEY,JSON.stringify(writing));}
-function switchWritingTab(tab,el){
-  ['stephen','comedy','creator'].forEach(function(t){
-    document.getElementById('writing-'+t).style.display=tab===t?'block':'none';
-    var btn=document.getElementById('tab-'+t);
-    btn.style.background=tab===t?'#e6f1fb':'transparent';btn.style.color=tab===t?'#185fa5':'#6b6b65';btn.style.borderColor=tab===t?'#185fa5':'#b4b2a9';
-  });
-}
-function saveWritingDoc(project,val){
-  writing['doc_'+project]={text:val,updatedAt:new Date().toISOString()};saveWriting();
-  var msg=document.getElementById('writingSaveMsg');
-  if(msg){var now=new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});msg.textContent='✓ Gespeichert um '+now;clearTimeout(msg._t);msg._t=setTimeout(function(){msg.textContent='';},3000);}
-}
-function exportWriting(project){
-  var doc=writing['doc_'+project],text=doc?doc.text:'';
-  var title=project==='stephen'?'Sir Stephen & Me':project==='comedy'?'Comedy':'Creator Business';
-  var blob=new Blob([title+'\n'+'═'.repeat(40)+'\n\n'+text],{type:'text/plain;charset=utf-8'});
-  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=project+'-'+todayKey+'.txt';a.click();
-}
-(function(){
-  ['stephen','comedy','creator'].forEach(function(project){
-    var doc=writing['doc_'+project];
-    if(doc&&doc.text){document.getElementById('write-'+project).value=doc.text;var d=new Date(doc.updatedAt).toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'});var m=document.getElementById(project+'-meta');if(m)m.textContent='Zuletzt bearbeitet: '+d;}
-  });
-})();
-document.getElementById('write-stephen').addEventListener('input',function(){saveWritingDoc('stephen',this.value);});
-document.getElementById('write-comedy').addEventListener('input',function(){saveWritingDoc('comedy',this.value);});
-document.getElementById('write-creator').addEventListener('input',function(){saveWritingDoc('creator',this.value);});
-
-// ── Verlauf ──────────────────────────────────────────────────────
-function renderVerlauf() {
-  var list=document.getElementById('verlaufList');
-  var keys=Object.keys(tage).sort(function(a,b){return b.localeCompare(a);});
-  document.getElementById('verlaufSub').textContent=keys.length+(keys.length===1?' Tag gespeichert':' Tage gespeichert');
-
-  // Wunsch-Karte oben
-  var wishHtml='';
-  var wish=loadWish();
-  if(wish){
-    wishHtml='<div style="background:#fdf6e9;border:0.5px solid #c9a84c;border-radius:12px;padding:1rem 1.25rem;margin-bottom:16px;">' +
-      '<div style="font-size:12px;font-weight:500;color:#9b7a1a;margin-bottom:6px;">☆ Mein Wunsch — fortlaufend</div>' +
-      '<div style="font-size:13px;color:#1a1a18;white-space:pre-wrap;line-height:1.6;">'+esc(wish)+'</div>' +
-      '</div>';
+    return res.json();
   }
 
-  if(!keys.length){list.innerHTML=wishHtml+'<div class="empty-state">Noch keine Tage gespeichert.</div>';return;}
-  list.innerHTML=wishHtml+keys.map(function(k){
-    var t=tage[k],d=new Date(t.datum+'T12:00:00').toLocaleDateString('de-DE',{weekday:'short',day:'numeric',month:'long',year:'numeric'});
-    var abortCount=(t.aborts&&t.aborts.length)?t.aborts.length:(t.abortedAt?1:0);
-    var badge=t.completed?'<span class="badge">✓ Abgeschlossen</span>':(abortCount>0?'<span class="badge aborted">'+abortCount+'x abgebrochen</span>':'<span class="badge partial">'+t.stepsDone+'/'+t.stepsTotal+' Schritte</span>');
-    var mn=mentorNames[t.mentor]||t.mentor||'';
-    var a=t.antworten||{},sn=t.stepNotes||{};
-    var dankHTML='';
-    Object.keys(sn).forEach(function(idx){
-      var n=sn[idx];
-      if(Array.isArray(n)&&n.some(function(x){return x;}))dankHTML+='<div class="detail-q">Dankbarkeit</div><div class="detail-a">'+n.filter(Boolean).map(esc).join(' · ')+'</div>';
-      if(n&&typeof n==='object'&&!Array.isArray(n)&&n.buch)dankHTML+='<div class="detail-q">Lesen</div><div class="detail-a">'+esc(n.buch)+(n.warum?' — <em>'+esc(n.warum)+'</em>':'')+'</div>';
+  async function apiUpsert(payload) {
+    const check = await apiGet(`day_key=eq.${payload.day_key}`);
+    const method = (check && check.length > 0) ? 'PATCH' : 'POST';
+    const url = method === 'PATCH'
+      ? `${SUPABASE_URL}/rest/v1/${TABLE}?day_key=eq.${payload.day_key}`
+      : `${SUPABASE_URL}/rest/v1/${TABLE}`;
+    await fetch(url, {
+      method,
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ ...payload, updated_at: new Date().toISOString() })
     });
-    return '<div class="day-card"><div class="day-top"><div class="day-date">'+d+'</div>'+badge+'</div><div class="day-steps">'+mn+'</div>'+
-      '<div class="day-detail">'+
-      (a.q1?'<div class="detail-q">Wie geht es mir heute?</div><div class="detail-a">'+esc(a.q1)+'</div>':'')+
-      (a.q2?'<div class="detail-q">Mein Nordstern</div><div class="detail-a">'+esc(a.q2)+'</div>':'')+
-      (a.q3?'<div class="detail-q">Was ich heute kreiere</div><div class="detail-a">'+esc(a.q3)+'</div>':'')+
-      (a.q4?'<div class="detail-q">Wo ich mich zeige</div><div class="detail-a">'+esc(a.q4)+'</div>':'')+
-      (a.q5?'<div class="detail-q">Warum mein Nordstern heute wichtig ist</div><div class="detail-a">'+esc(a.q5)+'</div>':'')+
-      (a.q6?'<div class="detail-q" style="color:#185fa5;">Mein Anker des Tages</div><div class="detail-a">'+esc(a.q6)+'</div>':'')+
-      (a.q7?'<div class="detail-q" style="color:#185fa5;">Was mich heute freut</div><div class="detail-a">'+esc(a.q7)+'</div>':'')+
-      (a.q8?'<div class="detail-q" style="color:#185fa5;">Anstrengendes + Belohnung</div><div class="detail-a">'+esc(a.q8)+'</div>':'')+
-      dankHTML+'</div></div>';
-  }).join('');
-}
+  }
 
-// ── Profil ──────────────────────────────────────────────────────
-function renderProfil() {
-  var el=document.getElementById('profilContent');
-  var keys=Object.keys(tage).sort(function(a,b){return b.localeCompare(a);});
-  if(!keys.length){el.innerHTML='<div class="empty-state">Noch keine Einträge.</div>';return;}
-  var todayEntry=tage[todayKey],lastSavedStr='';
-  if(todayEntry&&todayEntry.savedAt){var ls=new Date(todayEntry.savedAt);lastSavedStr='<div style="font-size:12px;color:#9b9b93;margin-bottom:1.5rem;">✓ Zuletzt gespeichert heute um '+ls.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit',second:'2-digit'})+' Uhr</div>';}
-  var streak=0;
-  for(var i=0;i<365;i++){var d=new Date();d.setDate(d.getDate()-i);var k=d.toISOString().slice(0,10);if(tage[k])streak++;else if(i>0)break;}
-  var mc={};keys.forEach(function(k){var m=tage[k].mentor;if(m)mc[m]=(mc[m]||0)+1;});
-  var ac={},abortLastTime={};
-  keys.forEach(function(k){var t=tage[k];if(t.aborts&&t.aborts.length)t.aborts.forEach(function(a){ac[a.step]=(ac[a.step]||0)+1;abortLastTime[a.step]=a;});else if(t.abortedAt)ac[t.abortedAt]=(ac[t.abortedAt]||0)+1;});
-  var abortEntries=Object.keys(ac).sort(function(a,b){return ac[b]-ac[a];});
-  var html=lastSavedStr+'<div class="metric-grid"><div class="metric"><div class="metric-label">Einträge gesamt</div><div class="metric-val">'+keys.length+'</div></div><div class="metric"><div class="metric-label">Aktuelle Serie</div><div class="metric-val">'+streak+' Tage</div></div></div>';
-  var nordsterne=[];var seen={};
-  keys.forEach(function(k){var q2=tage[k].antworten&&tage[k].antworten.q2;if(q2&&!seen[q2]){seen[q2]=true;nordsterne.push(q2);}});
-  nordsterne=nordsterne.slice(0,4);
-  if(nordsterne.length){html+='<div class="section-label">Dein Nordstern</div><div class="pill-row">'+nordsterne.map(function(n){return '<div class="pill">'+esc(n)+'</div>';}).join('')+'</div>';}
-  if(Object.keys(mc).length){html+='<div class="section-label">Mentoren-Wahl</div><div class="pill-row">'+Object.keys(mc).sort(function(a,b){return mc[b]-mc[a];}).map(function(m){return '<div class="pill-gray">'+(mentorNames[m]||m)+': <strong>'+mc[m]+'x</strong></div>';}).join('')+'</div>';}
-  if(abortEntries.length){html+='<div class="section-label">Abbruch-Muster</div><div class="abort-box">'+abortEntries.map(function(step){var last=abortLastTime[step],timeStr=(last&&last.planned&&last.spent)?' — zuletzt nach '+fmtTime(last.spent)+' von '+fmtTime(last.planned):'';return '<div class="abort-row"><span>'+esc(step)+timeStr+'</span><span style="color:#854f0b;font-weight:500;">'+ac[step]+'x</span></div>';}).join('')+'</div>';}
+  async function loadFromSupabase() {
+    setStatus('Lade...', '');
+    try {
+      const data = await apiGet(`day_key=eq.${todayKey}`);
+      if (data && data.length > 0) {
+        state = { day_key: todayKey, done: data[0].done || {}, calls: data[0].calls || 0, searched: data[0].searched || [], notes: data[0].notes || '' };
+      }
+      document.getElementById('todayNotes').value = state.notes || '';
 
-  var befinden=keys.map(function(k){var a=tage[k].antworten;return a&&a.q1?{date:k,val:a.q1}:null;}).filter(Boolean).slice(0,10);
-  if(befinden.length){html+='<div class="section-label">Wie es dir geht</div><div style="background:#f1efe8;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem;">';befinden.forEach(function(e){var d=new Date(e.date+'T12:00:00').toLocaleDateString('de-DE',{weekday:'short',day:'numeric',month:'short'});html+='<div style="display:flex;gap:10px;margin-bottom:6px;font-size:13px;"><span style="color:#9b9b93;white-space:nowrap;min-width:70px;">'+d+'</span><span>'+esc(e.val)+'</span></div>';});html+='</div>';}
+      const thirtyAgo = new Date();
+      thirtyAgo.setDate(thirtyAgo.getDate() - 30);
+      const fromKey = thirtyAgo.toISOString().split('T')[0];
+      const hRes = await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}?day_key=gte.${fromKey}&select=day_key,done,calls,notes&order=day_key.asc`, {
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+      });
+      historyData = await hRes.json() || [];
+      setStatus('', '');
+    } catch(e) { setStatus('Offline', ''); }
+    renderAll();
+  }
 
-  var anker=keys.map(function(k){var a=tage[k].antworten;return a&&a.q6?{date:k,val:a.q6}:null;}).filter(Boolean).slice(0,10);
-  if(anker.length){html+='<div style="background:#e6f1fb;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem;border-left:3px solid #378add;"><div style="font-size:12px;font-weight:500;color:#185fa5;margin-bottom:8px;">Meine Ankersätze</div>';anker.forEach(function(e){var d=new Date(e.date+'T12:00:00').toLocaleDateString('de-DE',{weekday:'short',day:'numeric',month:'short'});html+='<div style="display:flex;gap:10px;margin-bottom:6px;font-size:13px;"><span style="color:#9b9b93;white-space:nowrap;min-width:70px;">'+d+'</span><span style="font-style:italic;">'+esc(e.val)+'</span></div>';});html+='</div>';}
+  async function saveToSupabase() {
+    setStatus('Speichert...', 'saving');
+    try {
+      await apiUpsert({ day_key: todayKey, done: state.done, calls: state.calls, searched: state.searched, notes: state.notes });
+      const idx = historyData.findIndex(d => d.day_key === todayKey);
+      if (idx >= 0) historyData[idx] = { day_key: todayKey, done: state.done, calls: state.calls, notes: state.notes };
+      else historyData.push({ day_key: todayKey, done: state.done, calls: state.calls, notes: state.notes });
+      setStatus('✓ Gespeichert', 'saved');
+      setTimeout(() => setStatus('', ''), 3000);
+    } catch(e) { setStatus('Fehler', ''); }
+  }
 
-  var currentWish=loadWish();
-  if(currentWish){html+='<div style="background:#fdf6e9;border:0.5px solid #c9a84c;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem;"><div style="font-size:12px;font-weight:500;color:#9b7a1a;margin-bottom:8px;">Meine Wünsche</div><div style="font-size:13px;color:#1a1a18;white-space:pre-wrap;line-height:1.6;">'+esc(currentWish)+'</div></div>';}
+  function scheduleSave() { clearTimeout(saveTimeout); saveTimeout = setTimeout(saveToSupabase, 800); }
 
-  el.innerHTML=html;
-}
+  function scheduleNotesSave() {
+    state.notes = document.getElementById('todayNotes').value;
+    clearTimeout(notesSaveTimeout);
+    notesSaveTimeout = setTimeout(saveToSupabase, 1500);
+  }
 
-function copyAnalyse(){
-  var data=Object.values(tage).slice(0,30);
-  var text='Analysiere meine täglichen Morgenritual-Einträge und erstelle ein tiefes, ehrliches Portrait von mir als Person.\n\nMeine Einträge:\n'+JSON.stringify(data,null,2);
-  navigator.clipboard.writeText(text).then(function(){var msg=document.getElementById('copyMsg');msg.style.display='block';setTimeout(function(){msg.style.display='none';},4000);});
-}
-function clearAll(){if(!confirm('Wirklich alle Daten löschen?'))return;tage={};saveTage();alert('Alle Daten gelöscht.');}
-function exportJSON(){var blob=new Blob([JSON.stringify(tage,null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='morgenritual_'+todayKey+'.json';a.click();}
-function importJSON(evt){var file=evt.target.files[0];if(!file)return;var reader=new FileReader();reader.onload=function(e){try{var imported=JSON.parse(e.target.result);tage=Object.assign({},imported,tage);saveTage();alert('Import erfolgreich! '+Object.keys(imported).length+' Tage geladen.');}catch(err){alert('Fehler beim Importieren.');}};reader.readAsText(file);evt.target.value='';}
-async function saveToFolder(silent){if(!folderHandle)return;try{var fh=await folderHandle.getFileHandle('morgenritual_'+todayKey+'.json',{create:true});var w=await fh.createWritable();await w.write(JSON.stringify(tage,null,2));await w.close();}catch(e){}}
+  function setStatus(msg, cls) {
+    const el = document.getElementById('saveStatus');
+    el.textContent = msg;
+    el.className = 'save-status ' + cls;
+  }
+
+  function toggleTask(id) { state.done[id] = !state.done[id]; scheduleSave(); renderAll(); }
+
+  function changeCounter(delta) {
+    state.calls = Math.max(0, (state.calls || 0) + delta);
+    state.done['calls'] = state.calls >= CALL_TARGET;
+    scheduleSave(); renderAll();
+  }
+
+  function searchBranche(query, id) {
+    if (!state.searched.includes(id)) state.searched.push(id);
+    scheduleSave();
+    document.getElementById(id).classList.add('searched');
+    window.open('https://www.linkedin.com/search/results/people/?keywords=' + encodeURIComponent(query), '_blank');
+  }
+
+  function resetDay() {
+    if (confirm('Tag zurücksetzen?')) {
+      state = { day_key: todayKey, done: {}, calls: 0, searched: [], notes: '' };
+      document.getElementById('todayNotes').value = '';
+      saveToSupabase(); renderAll();
+    }
+  }
+
+  function getDayPct(dayData) {
+    if (!dayData || !dayData.done) return 0;
+    return Math.round(TASKS.filter(t => dayData.done[t]).length / TASKS.length * 100);
+  }
+
+  // Modal
+  function openDayModal(dayKey) {
+    modalDayKey = dayKey;
+    const data = historyData.find(d => d.day_key === dayKey);
+    const pct = getDayPct(data);
+    const date = new Date(dayKey + 'T12:00:00');
+    const dateStr = date.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+    document.getElementById('modalDate').textContent = dayKey;
+    document.getElementById('modalTitle').textContent = dateStr;
+    document.getElementById('modalProgressFill').style.width = pct + '%';
+    document.getElementById('modalProgressFill').style.background = pct === 100 ? 'var(--green)' : pct > 0 ? '#7ac040' : 'var(--rule)';
+    document.getElementById('modalCalls').textContent = data ? `${data.calls || 0} Calls an diesem Tag` : 'Keine Daten';
+    document.getElementById('modalNotes').value = (data && data.notes) ? data.notes : '';
+
+    const tasksEl = document.getElementById('modalTasks');
+    tasksEl.innerHTML = '';
+    TASKS.forEach(t => {
+      const done = data && data.done && data.done[t];
+      const el = document.createElement('div');
+      el.className = 'modal-task' + (done ? ' done' : '');
+      el.innerHTML = `<div class="modal-task-check">${done ? '✓' : ''}</div><div class="modal-task-name">${TASK_NAMES[t]}</div>`;
+      tasksEl.appendChild(el);
+    });
+
+    document.getElementById('modalOverlay').classList.add('visible');
+  }
+
+  function closeModal(e) { if (e.target === document.getElementById('modalOverlay')) closeModalDirect(); }
+  function closeModalDirect() { document.getElementById('modalOverlay').classList.remove('visible'); modalDayKey = null; }
+
+  function scheduleModalNotesSave() {
+    clearTimeout(modalNotesSaveTimeout);
+    modalNotesSaveTimeout = setTimeout(async () => {
+      if (!modalDayKey) return;
+      const notes = document.getElementById('modalNotes').value;
+      const idx = historyData.findIndex(d => d.day_key === modalDayKey);
+      if (idx >= 0) historyData[idx].notes = notes;
+      const existing = historyData[idx] || {};
+      await apiUpsert({ day_key: modalDayKey, done: existing.done || {}, calls: existing.calls || 0, searched: existing.searched || [], notes });
+    }, 1500);
+  }
+
+  function renderHistory() {
+    const grid = document.getElementById('historyGrid');
+    grid.innerHTML = '';
+    const days = [];
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date(); d.setDate(d.getDate() - i);
+      days.push(d.toISOString().split('T')[0]);
+    }
+    const firstDay = new Date(days[0]);
+    const padding = (firstDay.getDay() + 6) % 7;
+    for (let i = 0; i < padding; i++) {
+      const empty = document.createElement('div');
+      empty.className = 'history-day empty'; grid.appendChild(empty);
+    }
+    days.forEach(dayKey => {
+      const data = historyData.find(d => d.day_key === dayKey);
+      const pct = getDayPct(data);
+      const isToday = dayKey === todayKey;
+      const dayNum = parseInt(dayKey.split('-')[2]);
+      const el = document.createElement('div');
+      el.className = 'history-day ' + (pct === 0 ? 'no-data' : pct === 100 ? 'complete' : 'partial') + (isToday ? ' today' : '');
+      el.title = dayKey;
+      el.innerHTML = `<div class="history-day-num">${dayNum}</div>${pct > 0 ? `<div class="history-day-pct">${pct}%</div>` : ''}`;
+      el.onclick = () => openDayModal(dayKey);
+      grid.appendChild(el);
+    });
+
+    const completeDays = historyData.filter(d => getDayPct(d) === 100).length;
+    const totalCalls = historyData.reduce((sum, d) => sum + (d.calls || 0), 0);
+    let streak = 0;
+    for (let i = 0; i < days.length; i++) {
+      const data = historyData.find(d => d.day_key === days[days.length - 1 - i]);
+      if (getDayPct(data) === 100) streak++;
+      else break;
+    }
+    document.getElementById('stat-streak').textContent = streak;
+    document.getElementById('stat-complete').textContent = completeDays;
+    document.getElementById('stat-calls').textContent = totalCalls;
+  }
+
+  function renderAll() {
+    let total = TASKS.length, done = 0;
+    TASKS.forEach(id => {
+      const taskEl = document.getElementById('task-' + id);
+      const checkEl = document.getElementById('check-' + id);
+      if (!taskEl || !checkEl) return;
+      if (state.done[id]) { taskEl.classList.add('done'); checkEl.textContent = '✓'; done++; }
+      else { taskEl.classList.remove('done'); checkEl.textContent = ''; }
+    });
+    const calls = state.calls || 0;
+    document.getElementById('callCount').textContent = calls;
+    document.getElementById('callFill').style.width = Math.min(100, Math.round(calls / CALL_TARGET * 100)) + '%';
+    if (state.searched) state.searched.forEach(id => { const el = document.getElementById(id); if (el) el.classList.add('searched'); });
+    document.getElementById('progressFill').style.width = Math.round(done / total * 100) + '%';
+    document.getElementById('progressText').textContent = done + ' von ' + total + ' erledigt';
+    document.getElementById('completeBanner').classList.toggle('visible', done === total);
+  }
 </script>
 </body>
 </html>
