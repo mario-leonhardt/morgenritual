@@ -202,12 +202,25 @@
     <div class="question-card" style="background:#1a1218;border:0.5px solid #6b3040;margin-top:0.5rem;">
       <div class="q-label" style="color:#c47a8a;">Mein Struggle — fortlaufend</div>
       <div class="q-text" style="color:#f0d0d8;">Was blockiert mich gerade wirklich?</div>
-      <div style="font-size:12px;color:#c47a8a;margin-top:4px;margin-bottom:8px;" id="struggleQuestion"></div>
-      <div class="writing-wrap">
+      <div class="writing-wrap" style="margin-top:10px;">
         <textarea class="q-input writing-textarea" id="qs" rows="3" placeholder="Schreib es auf. Ohne Filter." style="background:#2a1820;border-color:#6b3040;color:#f0d0d8;font-size:14px;line-height:1.7;"></textarea>
         <div class="resize-handle" onmousedown="startResize(event,'qs')" style="border-color:#6b3040;background:#1a1218;"></div>
       </div>
-      <div id="struggleSaveMsg" style="font-size:11px;color:#c47a8a;margin-top:6px;min-height:14px;"></div>
+      <div style="margin-top:14px;display:flex;flex-direction:column;gap:10px;">
+        <div>
+          <div style="font-size:11px;color:#c47a8a;margin-bottom:4px;">Was habe ich heute mit diesem Problem vor?</div>
+          <textarea class="q-input" id="qs1" rows="1" placeholder="..." style="background:#2a1820;border-color:#6b3040;color:#f0d0d8;font-size:13px;margin-top:0;"></textarea>
+        </div>
+        <div>
+          <div style="font-size:11px;color:#c47a8a;margin-bottom:4px;">Was wäre ein einziger kleiner Schritt?</div>
+          <textarea class="q-input" id="qs2" rows="1" placeholder="..." style="background:#2a1820;border-color:#6b3040;color:#f0d0d8;font-size:13px;margin-top:0;"></textarea>
+        </div>
+        <div>
+          <div style="font-size:11px;color:#c47a8a;margin-bottom:4px;">Hat sich etwas verändert seit gestern?</div>
+          <textarea class="q-input" id="qs3" rows="1" placeholder="..." style="background:#2a1820;border-color:#6b3040;color:#f0d0d8;font-size:13px;margin-top:0;"></textarea>
+        </div>
+      </div>
+      <div id="struggleSaveMsg" style="font-size:11px;color:#c47a8a;margin-top:8px;min-height:14px;"></div>
     </div>
 
     <hr class="section-divider">
@@ -627,18 +640,21 @@ var struggleQuestions=[
   'Was brauche ich um weiterzumachen?',
   'Was will mir dieser Struggle zeigen?'
 ];
-function loadStruggle(){try{return localStorage.getItem(STRUGGLE_KEY)||'';}catch(e){return '';}}
-function saveStruggle(val){
-  localStorage.setItem(STRUGGLE_KEY,val);
+function loadStruggle(){try{return JSON.parse(localStorage.getItem(STRUGGLE_KEY))||{};}catch(e){return {};}}
+function saveStruggleData(){
+  var data={main:document.getElementById('qs').value,s1:document.getElementById('qs1').value,s2:document.getElementById('qs2').value,s3:document.getElementById('qs3').value};
+  localStorage.setItem(STRUGGLE_KEY,JSON.stringify(data));
   var msg=document.getElementById('struggleSaveMsg');
   if(msg){msg.textContent='✓ Gespeichert';clearTimeout(msg._t);msg._t=setTimeout(function(){msg.textContent='';},3000);}
 }
 (function(){
-  var w=loadStruggle();if(w)document.getElementById('qs').value=w;
-  var dayIndex=Math.floor(Date.now()/86400000)%struggleQuestions.length;
-  var q=document.getElementById('struggleQuestion');if(q)q.textContent='Heute: '+struggleQuestions[dayIndex];
+  var d=loadStruggle();
+  if(d.main)document.getElementById('qs').value=d.main;
+  if(d.s1)document.getElementById('qs1').value=d.s1;
+  if(d.s2)document.getElementById('qs2').value=d.s2;
+  if(d.s3)document.getElementById('qs3').value=d.s3;
 })();
-document.getElementById('qs').addEventListener('input',function(){saveStruggle(this.value);});
+['qs','qs1','qs2','qs3'].forEach(function(id){document.getElementById(id).addEventListener('input',saveStruggleData);});
 
 var WRITING_KEY='morgenritual_writing';
 var writing=loadWriting();
@@ -679,8 +695,16 @@ function renderVerlauf() {
   var wishHtml='';
   var wish=loadWish();
   if(wish){wishHtml='<div style="background:#fdf6e9;border:0.5px solid #c9a84c;border-radius:12px;padding:1rem 1.25rem;margin-bottom:16px;"><div style="font-size:12px;font-weight:500;color:#9b7a1a;margin-bottom:6px;">☆ Mein Wunsch — fortlaufend</div><div style="font-size:13px;color:#1a1a18;white-space:pre-wrap;line-height:1.6;">'+esc(wish)+'</div></div>';}
-  var struggle=loadStruggle();
-  if(struggle){wishHtml+='<div style="background:#1a1218;border:0.5px solid #6b3040;border-radius:12px;padding:1rem 1.25rem;margin-bottom:16px;"><div style="font-size:12px;font-weight:500;color:#c47a8a;margin-bottom:6px;">⚡ Mein Struggle — fortlaufend</div><div style="font-size:13px;color:#f0d0d8;white-space:pre-wrap;line-height:1.6;">'+esc(struggle)+'</div></div>';}
+  var struggleData=loadStruggle();
+  if(struggleData.main||struggleData.s1||struggleData.s2||struggleData.s3){
+    var sh='<div style="background:#1a1218;border:0.5px solid #6b3040;border-radius:12px;padding:1rem 1.25rem;margin-bottom:16px;"><div style="font-size:12px;font-weight:500;color:#c47a8a;margin-bottom:8px;">⚡ Mein Struggle — fortlaufend</div>';
+    if(struggleData.main)sh+='<div style="font-size:13px;color:#f0d0d8;white-space:pre-wrap;line-height:1.6;margin-bottom:8px;">'+esc(struggleData.main)+'</div>';
+    if(struggleData.s1)sh+='<div style="font-size:11px;color:#c47a8a;margin-top:6px;">Was habe ich heute vor?</div><div style="font-size:12px;color:#f0d0d8;">'+esc(struggleData.s1)+'</div>';
+    if(struggleData.s2)sh+='<div style="font-size:11px;color:#c47a8a;margin-top:6px;">Einziger kleiner Schritt?</div><div style="font-size:12px;color:#f0d0d8;">'+esc(struggleData.s2)+'</div>';
+    if(struggleData.s3)sh+='<div style="font-size:11px;color:#c47a8a;margin-top:6px;">Hat sich etwas verändert?</div><div style="font-size:12px;color:#f0d0d8;">'+esc(struggleData.s3)+'</div>';
+    sh+='</div>';
+    wishHtml+=sh;
+  }
   if(!keys.length){list.innerHTML=wishHtml+'<div class="empty-state">Noch keine Tage gespeichert.</div>';return;}
   list.innerHTML=wishHtml+keys.map(function(k){
     var t=tage[k],d=new Date(t.datum+'T12:00:00').toLocaleDateString('de-DE',{weekday:'short',day:'numeric',month:'long',year:'numeric'});
