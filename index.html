@@ -401,6 +401,8 @@ let timerInterval = null;
 let timerRemaining = 0;
 let timerTotal = 0;
 let timerRunning = false;
+let timerStartedAt = null;
+let timerSpentBeforePause = 0;
 const todayKey = new Date().toISOString().slice(0, 10);
 
 function loadTage() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch(e) { return {}; } }
@@ -525,15 +527,16 @@ function fmtTime(secs) { var m=Math.floor(secs/60),s=secs%60; return String(m).p
 function toggleTimer() { timerRunning?pauseTimer():startTimer(); }
 function startTimer() {
   if(timerRemaining<=0)return; timerRunning=true;
+  timerStartedAt=Date.now();
   var btn=document.getElementById('timerStartBtn'); if(btn)btn.textContent='⏸ Pause';
   timerInterval=setInterval(function() {
     timerRemaining--; updateTimerDisplay();
     if(timerRemaining<=0) { clearInterval(timerInterval); timerRunning=false; var d=document.getElementById('timerDisplay'); if(d){d.textContent='✓ Fertig';d.classList.add('done');} var b=document.getElementById('timerStartBtn'); if(b){b.textContent='✓ Fertig';b.disabled=false;b.style.background='#185fa5';b.style.color='#fff';b.style.borderColor='#185fa5';b.style.animation='glow 1.5s infinite';b.onclick=function(){nextStep();}; } playTimerDoneSound(); }
   },1000);
 }
-function pauseTimer() { clearInterval(timerInterval); timerRunning=false; var btn=document.getElementById('timerStartBtn'); if(btn)btn.textContent='▶ Start'; }
+function pauseTimer() { clearInterval(timerInterval); timerRunning=false; if(timerStartedAt){timerSpentBeforePause+=Math.round((Date.now()-timerStartedAt)/1000);timerStartedAt=null;} var btn=document.getElementById('timerStartBtn'); if(btn)btn.textContent='▶ Start'; }
 function resetTimer(mins) { clearInterval(timerInterval); timerRunning=false; timerRemaining=mins*60; timerTotal=timerRemaining; var d=document.getElementById('timerDisplay'); if(d){d.textContent=fmtTime(timerRemaining);d.classList.remove('done');} var b=document.getElementById('timerStartBtn'); if(b){b.textContent='▶ Start';b.disabled=false;} updateTimerDisplay(); }
-function clearTimer() { clearInterval(timerInterval); timerRunning=false; timerRemaining=0; timerTotal=0; }
+function clearTimer() { clearInterval(timerInterval); timerRunning=false; timerRemaining=0; timerTotal=0; timerStartedAt=null; timerSpentBeforePause=0; }
 function updateTimerDisplay() { var d=document.getElementById('timerDisplay'),bar=document.getElementById('timerBar'); if(d)d.textContent=fmtTime(timerRemaining); if(bar&&timerTotal>0)bar.style.width=Math.round((timerRemaining/timerTotal)*100)+'%'; }
 function playTimerDoneSound() { try { var ctx=new(window.AudioContext||window.webkitAudioContext)(); [440,528,660].forEach(function(f,i){var o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,ctx.currentTime+i*.3);g.gain.linearRampToValueAtTime(.22,ctx.currentTime+i*.3+.05);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+i*.3+1.2);o.start(ctx.currentTime+i*.3);o.stop(ctx.currentTime+i*.3+1.3);}); } catch(e){} }
 function playCompletionEffect() {
@@ -551,9 +554,17 @@ function nextStep() {
 }
 function prevStep() { if(currentStep>0){clearTimer();currentStep--;renderSteps();saveToday(false);} }
 function skipStep() {
+  var nowSpent = timerStartedAt ? Math.round((Date.now()-timerStartedAt)/1000) : 0;
+  var spentSecs = timerSpentBeforePause + nowSpent;
+  var plannedSecs = steps[currentStep].mins*60;
+  if(spentSecs>0) {
+    if(!stepTimes[currentStep]) stepTimes[currentStep]={title:steps[currentStep].title,planned:plannedSecs,attempts:[]};
+    stepTimes[currentStep].spent=spentSecs;
+    stepTimes[currentStep].planned=plannedSecs;
+  }
   var existing=tage[todayKey]||{};
   if(!existing.aborts) existing.aborts=[];
-  existing.aborts.push({step:steps[currentStep].title,at:new Date().toISOString()});
+  existing.aborts.push({step:steps[currentStep].title,at:new Date().toISOString(),spent:spentSecs,planned:plannedSecs});
   tage[todayKey]=existing;
   clearTimer(); currentStep++; renderSteps(); saveToday(currentStep>=steps.length);
 }
