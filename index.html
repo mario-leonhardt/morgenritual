@@ -199,6 +199,17 @@
       <div id="wishSaveMsg" style="font-size:11px;color:#9b7a1a;margin-top:6px;min-height:14px;"></div>
     </div>
 
+    <div class="question-card" style="background:#1a1218;border:0.5px solid #6b3040;margin-top:0.5rem;">
+      <div class="q-label" style="color:#c47a8a;">Mein Struggle — fortlaufend</div>
+      <div class="q-text" style="color:#f0d0d8;">Was blockiert mich gerade wirklich?</div>
+      <div style="font-size:12px;color:#c47a8a;margin-top:4px;margin-bottom:8px;" id="struggleQuestion"></div>
+      <div class="writing-wrap">
+        <textarea class="q-input writing-textarea" id="qs" rows="3" placeholder="Schreib es auf. Ohne Filter." style="background:#2a1820;border-color:#6b3040;color:#f0d0d8;font-size:14px;line-height:1.7;"></textarea>
+        <div class="resize-handle" onmousedown="startResize(event,'qs')" style="border-color:#6b3040;background:#1a1218;"></div>
+      </div>
+      <div id="struggleSaveMsg" style="font-size:11px;color:#c47a8a;margin-top:6px;min-height:14px;"></div>
+    </div>
+
     <hr class="section-divider">
 
     <div style="margin-bottom:2rem;">
@@ -606,6 +617,29 @@ function saveWish(val){
 (function(){var w=loadWish();if(w)document.getElementById('qw').value=w;})();
 document.getElementById('qw').addEventListener('input',function(){saveWish(this.value);});
 
+var STRUGGLE_KEY='morgenritual_struggle';
+var struggleQuestions=[
+  'Was habe ich heute konkret mit diesem Problem vor?',
+  'Was wäre ein einziger kleiner Schritt — heute?',
+  'Hat sich etwas verändert seit gestern?',
+  'Was verschiebe ich immer wieder — und warum?',
+  'Was würde ich einem Freund raten der das gleiche trägt?',
+  'Was brauche ich um weiterzumachen?',
+  'Was will mir dieser Struggle zeigen?'
+];
+function loadStruggle(){try{return localStorage.getItem(STRUGGLE_KEY)||'';}catch(e){return '';}}
+function saveStruggle(val){
+  localStorage.setItem(STRUGGLE_KEY,val);
+  var msg=document.getElementById('struggleSaveMsg');
+  if(msg){msg.textContent='✓ Gespeichert';clearTimeout(msg._t);msg._t=setTimeout(function(){msg.textContent='';},3000);}
+}
+(function(){
+  var w=loadStruggle();if(w)document.getElementById('qs').value=w;
+  var dayIndex=Math.floor(Date.now()/86400000)%struggleQuestions.length;
+  var q=document.getElementById('struggleQuestion');if(q)q.textContent='Heute: '+struggleQuestions[dayIndex];
+})();
+document.getElementById('qs').addEventListener('input',function(){saveStruggle(this.value);});
+
 var WRITING_KEY='morgenritual_writing';
 var writing=loadWriting();
 function loadWriting(){try{return JSON.parse(localStorage.getItem(WRITING_KEY))||{};}catch(e){return {};}}
@@ -645,6 +679,8 @@ function renderVerlauf() {
   var wishHtml='';
   var wish=loadWish();
   if(wish){wishHtml='<div style="background:#fdf6e9;border:0.5px solid #c9a84c;border-radius:12px;padding:1rem 1.25rem;margin-bottom:16px;"><div style="font-size:12px;font-weight:500;color:#9b7a1a;margin-bottom:6px;">☆ Mein Wunsch — fortlaufend</div><div style="font-size:13px;color:#1a1a18;white-space:pre-wrap;line-height:1.6;">'+esc(wish)+'</div></div>';}
+  var struggle=loadStruggle();
+  if(struggle){wishHtml+='<div style="background:#1a1218;border:0.5px solid #6b3040;border-radius:12px;padding:1rem 1.25rem;margin-bottom:16px;"><div style="font-size:12px;font-weight:500;color:#c47a8a;margin-bottom:6px;">⚡ Mein Struggle — fortlaufend</div><div style="font-size:13px;color:#f0d0d8;white-space:pre-wrap;line-height:1.6;">'+esc(struggle)+'</div></div>';}
   if(!keys.length){list.innerHTML=wishHtml+'<div class="empty-state">Noch keine Tage gespeichert.</div>';return;}
   list.innerHTML=wishHtml+keys.map(function(k){
     var t=tage[k],d=new Date(t.datum+'T12:00:00').toLocaleDateString('de-DE',{weekday:'short',day:'numeric',month:'long',year:'numeric'});
