@@ -209,15 +209,15 @@
       <div style="margin-top:14px;display:flex;flex-direction:column;gap:10px;">
         <div>
           <div style="font-size:11px;color:#c47a8a;margin-bottom:4px;">Was habe ich heute mit diesem Problem vor?</div>
-          <textarea class="q-input" id="qs1" rows="1" placeholder="..." style="background:#2a1820;border-color:#6b3040;color:#f0d0d8;font-size:13px;margin-top:0;"></textarea>
+          <textarea class="q-input" id="qs1" rows="2" placeholder="..." style="background:#2a1820;border-color:#6b3040;color:#f0d0d8;font-size:13px;margin-top:0;resize:vertical;overflow-y:auto;"></textarea>
         </div>
         <div>
           <div style="font-size:11px;color:#c47a8a;margin-bottom:4px;">Was wäre ein einziger kleiner Schritt?</div>
-          <textarea class="q-input" id="qs2" rows="1" placeholder="..." style="background:#2a1820;border-color:#6b3040;color:#f0d0d8;font-size:13px;margin-top:0;"></textarea>
+          <textarea class="q-input" id="qs2" rows="2" placeholder="..." style="background:#2a1820;border-color:#6b3040;color:#f0d0d8;font-size:13px;margin-top:0;resize:vertical;overflow-y:auto;"></textarea>
         </div>
         <div>
           <div style="font-size:11px;color:#c47a8a;margin-bottom:4px;">Hat sich etwas verändert seit gestern?</div>
-          <textarea class="q-input" id="qs3" rows="1" placeholder="..." style="background:#2a1820;border-color:#6b3040;color:#f0d0d8;font-size:13px;margin-top:0;"></textarea>
+          <textarea class="q-input" id="qs3" rows="2" placeholder="..." style="background:#2a1820;border-color:#6b3040;color:#f0d0d8;font-size:13px;margin-top:0;resize:vertical;overflow-y:auto;"></textarea>
         </div>
       </div>
       <div id="struggleSaveMsg" style="font-size:11px;color:#c47a8a;margin-top:8px;min-height:14px;"></div>
@@ -392,7 +392,7 @@ const rituals = {
     { title: "Dankbarkeit notieren", desc: "Schreibe 3 Dinge auf, für die du heute dankbar bist.", source: "Jim Rohn — Dankbarkeit als tägliche Praxis", mins: 2 },
     { title: "Lesen & Lernen", desc: "10–15 Minuten in einem Buch lesen. Philosophie, Biografie oder Strategie.", source: "Jim Rohn — Miss a meal, but not your reading", mins: 12 },
     { title: "Spaziergang & Bewegung", desc: "15–20 Minuten ruhig gehen. Nicht als Sport — als Denkzeit.", source: "Jim Rohn — Körper und Geist in Einklang", mins: 15 },
-    { title: "Absicht setzen", desc: "Notiere deine eine Hauptabsicht für heute.", source: "Dean Graziosi — Intention vor Aktion", mins: 5 },
+    { title: "Absicht setzen", desc: "Notiere deine eine Hauptabsicht für heute.", source: "Jim Rohn — Klares Ziel vor dem ersten Schritt", mins: 5 },
     { title: "Tagebuch schreiben", desc: "10 Minuten schreiben — was beschäftigt dich, was hast du gestern gelernt?", source: "Jim Rohn — Jahrzehntelange tägliche Praxis", mins: 10 }
   ],
   robbins: [
@@ -654,7 +654,16 @@ function saveStruggleData(){
   if(d.s2)document.getElementById('qs2').value=d.s2;
   if(d.s3)document.getElementById('qs3').value=d.s3;
 })();
-['qs','qs1','qs2','qs3'].forEach(function(id){document.getElementById(id).addEventListener('input',saveStruggleData);});
+['qs','qs1','qs2','qs3'].forEach(function(id){
+  var el=document.getElementById(id);
+  el.addEventListener('input',function(){
+    saveStruggleData();
+    this.style.height='auto';
+    this.style.height=(this.scrollHeight)+'px';
+  });
+  // initial resize
+  if(el.value){el.style.height='auto';el.style.height=(el.scrollHeight)+'px';}
+});
 
 var WRITING_KEY='morgenritual_writing';
 var writing=loadWriting();
