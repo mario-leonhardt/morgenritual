@@ -259,9 +259,9 @@
     <div class="step-area" id="stepArea" style="display:none;">
       <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
       <div id="stepsContainer"></div>
-      <div class="btn-row">
+      <div class="btn-row" id="bottomBtnRow">
         <button class="btn" onclick="prevStep()">Zurück</button>
-        <button class="btn btn-primary" id="nextBtn" onclick="nextStep()" style="font-size:16px;padding:12px 32px;letter-spacing:0.02em;">✓ Fertig</button>
+        <button class="btn" id="nextBtn" onclick="skipStep()" style="color:#9b9b93;border-color:#d3d1c7;">Überspringen</button>
       </div>
     </div>
   </div>
@@ -478,7 +478,7 @@ function renderSteps() {
     inner += '<div class="step-title">'+s.title+'</div>';
     if (i<currentStep) {
       var st = stepTimes[i];
-      if (st) { var p=Math.round((st.spent/st.planned)*100); var col=p>=80?'#3b6d11':'#854f0b'; inner+='<div style="font-size:11px;color:'+col+';margin-top:3px;">'+fmtTime(st.spent)+' von '+fmtTime(st.planned)+'</div>'; }
+      if (st) { var planned=steps[i]?steps[i].mins*60:st.planned; var p=Math.round((st.spent/planned)*100); var col=p>=80?'#3b6d11':'#854f0b'; inner+='<div style="font-size:11px;color:'+col+';margin-top:3px;">'+fmtTime(st.spent)+' von '+fmtTime(planned)+'</div>'; }
       inner+='<button onclick="repeatStep('+i+')" style="margin-top:6px;font-size:11px;color:#9b9b93;background:transparent;border:none;cursor:pointer;padding:0;font-family:inherit;">↺ Nochmal</button>';
     }
     if (i===currentStep) {
@@ -505,7 +505,14 @@ function renderSteps() {
     div.innerHTML=inner; container.appendChild(div);
   });
   var s=steps[currentStep];
-  if (s&&s.mins>0) { timerRemaining=s.mins*60; timerTotal=timerRemaining; timerRunning=false; updateTimerDisplay(); }
+  if (s&&s.mins>0) {
+    timerRemaining=s.mins*60; timerTotal=timerRemaining; timerRunning=false; updateTimerDisplay();
+    // Schritt mit Timer: unten nur Überspringen
+    var nb=document.getElementById('nextBtn'); if(nb){nb.textContent='Überspringen';nb.onclick=skipStep;nb.style.color='#9b9b93';nb.style.borderColor='#d3d1c7';nb.style.background='transparent';nb.style.animation='none';}
+  } else {
+    // Schritt ohne Timer: Fertig-Button unten
+    var nb=document.getElementById('nextBtn'); if(nb){nb.textContent='✓ Fertig';nb.onclick=nextStep;nb.style.color='#fff';nb.style.borderColor='#185fa5';nb.style.background='#185fa5';nb.style.animation='glow 2s infinite';}
+  }
 }
 
 function saveNote(idx,pos,val) { if(!Array.isArray(stepNotes[idx]))stepNotes[idx]=['','','']; stepNotes[idx][pos]=val; saveToday(false); }
@@ -543,6 +550,13 @@ function nextStep() {
   }
 }
 function prevStep() { if(currentStep>0){clearTimer();currentStep--;renderSteps();saveToday(false);} }
+function skipStep() {
+  var existing=tage[todayKey]||{};
+  if(!existing.aborts) existing.aborts=[];
+  existing.aborts.push({step:steps[currentStep].title,at:new Date().toISOString()});
+  tage[todayKey]=existing;
+  clearTimer(); currentStep++; renderSteps(); saveToday(currentStep>=steps.length);
+}
 
 function saveToday(completed) {
   var existing=tage[todayKey]||{};
